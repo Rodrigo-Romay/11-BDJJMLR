@@ -4,45 +4,48 @@ import sqlite3
 class data_import():
     def __init__(self):
         self._data = None
+        self._file = None
 
-    def read_csv(self, file):
-        try:
-            self._data = pd.read_csv(file)
-            return self._data
-        except:
-            print(f"File Not Found Error")
+    def read_csv(self):
+        self._data = pd.read_csv(self._file)
+        return self._data
         
-    def read_excel(self, file):
+    def read_excel(self):
+        self._data = pd.read_excel(self._file)
+        return self._data
+    def read_sql(self):
+        self._data = sqlite3.connect(self._file)
+        return self._data
+
+    def file_type(self):
         try:
-            self._data = pd.read_excel(file)
-            return self._data
-        except:
-            print(f"File Not Found Error")
+            partes = self._file.split('.')
+            if len(partes) < 2:
+                print("File format not found")
+            else:
+                extension = partes[1].lower()
+                if extension == "csv":
+                    self.read_csv()
+                elif extension == "xlsx":
+                    self.read_excel()
+                elif extension == "db":
+                    self.read_sql()
+                else:
+                    print("\nFormat not valid")
+        except FileNotFoundError:
+            print("\nError: File not found")
     
-    def read_sqlite3(self, file):
-        try:
-            self._data = sqlite3.connect(file)
-            return self._data
-        except:
-            print(f"File Not Found Error")
-    
-    def file_type(self, file):
-        extension = file.split('.')
-        if len(extension) < 2:
-            return f"File format not found"
-        pass
-        
+    def ask_file(self):
+        self._file = input("Introduce the file's route: ").replace("\\\\", "\\")
+
+    def read_file(self):
+        self.ask_file()
+        self.file_type()
+        return self._data
 
 
-if __name__ == "__main__":        
-    file_route = input("Introduce the file's route: ")
-    file1 = file_route.replace("\\\\", "\\")
-    
-    x = data_import().read_csv(file1)
-    y = data_import().read_excel(file1)
-    print(x)
-    print(y)
-            
+if __name__ == "__main__":
+    x = data_import().read_file()
             
             
 
