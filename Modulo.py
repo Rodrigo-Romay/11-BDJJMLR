@@ -26,9 +26,9 @@ class data_import():
                 extension = partes[1].lower()
                 if extension == "csv":
                     self.read_csv()
-                elif extension == "xlsx":
+                elif extension == "xlsx" or extension == "xls":
                     self.read_excel()
-                elif extension == "db":
+                elif extension == "db" or extension == "sqlite":
                     self.read_sql()
                 else:
                     print("\nFormat not valid")
