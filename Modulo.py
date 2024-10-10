@@ -8,14 +8,12 @@ class data_import():
 
     def read_csv(self):
         self._data = pd.read_csv(self._file)
-        return self._data
         
     def read_excel(self):
         self._data = pd.read_excel(self._file)
-        return self._data
+
     def read_sql(self):
         self._data = sqlite3.connect(self._file)
-        return self._data
 
     def file_type(self):
         try:
@@ -46,6 +44,7 @@ class data_import():
 
 if __name__ == "__main__":
     x = data_import().read_file()
+    print(x)
             
             
 
