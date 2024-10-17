@@ -1,5 +1,16 @@
 import pandas as pd
 import sqlite3
+import tkinter as tk
+import os
+
+root = tk.Tk() #Crea la ventana principal
+root.title("Data Importation Interface") #Le doy título a la ventana
+
+load_button = tk.Button(root, text="Load File", command=lambda: load_file())
+load_button.pack(pady=20) #pack() coloca el boton en la ventana con un espacio vertical de 20 pixeles alrededor
+
+file_label = tk.Label(root, text="File's Route: None")
+file_label.pack(pady=10) #pack() coloca la etiqueta en la ventana con un espacio vertical de 10 pixeles 
 
 class DataImport():
     def __init__(self):
