@@ -26,7 +26,7 @@ class GUI():
 
         # Configurar el Frame con el Treeview y el Scrollbar
         self.table_frame = tk.Frame(self.root)
-        self.table_frame.pack(padx=20, pady=20, fill="both", expand=True)
+        self.table_frame.pack(padx=5, pady=5, fill="both", expand=True)
         self.table_frame.pack_propagate(False)  # Evita que el frame cambie de tamaño
 
         self.v_scroll = tk.Scrollbar(self.table_frame, orient="vertical")
