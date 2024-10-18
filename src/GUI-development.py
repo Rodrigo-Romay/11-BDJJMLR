@@ -63,6 +63,10 @@ class GUI():
                     self.display_data(data)
                 else:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
+            except FileNotFoundError:
+                messagebox.showerror("Error", "File not found.")
+            except ValueError:
+                messagebox.showerror("Error", "Invalid data.")
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred while loading the file: {str(e)}")
 
