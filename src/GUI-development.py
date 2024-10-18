@@ -26,7 +26,7 @@ class GUI():
 
         # Configurar el Frame con el Treeview y el Scrollbar
         self.table_frame = tk.Frame(self.root)
-        self.table_frame.pack(padx=20, pady=20, fill="both", expand=True)
+        self.table_frame.pack(padx=5, pady=5, fill="both", expand=True)
         self.table_frame.pack_propagate(False)  # Evita que el frame cambie de tamaño
 
         self.v_scroll = tk.Scrollbar(self.table_frame, orient="vertical")
@@ -59,10 +59,14 @@ class GUI():
                 data_importer.file_type()  # Detecta el tipo de archivo y carga los datos
                 data = data_importer._data  # Obtener los datos cargados
 
-                if data is not None:
+                if data.empty == False:
                     self.display_data(data)
                 else:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
+            except FileNotFoundError:
+                messagebox.showerror("Error", "File not found.")
+            except ValueError:
+                messagebox.showerror("Error", "Invalid data.")
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred while loading the file: {str(e)}")
 
