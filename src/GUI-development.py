@@ -70,7 +70,7 @@ class GUI():
 
         for col in data.columns:
             self.data_table.heading(col, text=col)
-            self.data_table.column(col, width=150)
+            self.data_table.column(col, width=1500)
 
         # Insertar filas de datos
         for index, row in data.iterrows():
