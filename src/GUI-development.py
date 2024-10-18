@@ -59,7 +59,7 @@ class GUI():
                 data_importer.file_type()  # Detecta el tipo de archivo y carga los datos
                 data = data_importer._data  # Obtener los datos cargados
 
-                if data is not None:
+                if data.empty == False:
                     self.display_data(data)
                 else:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
