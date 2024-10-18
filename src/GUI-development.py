@@ -69,8 +69,8 @@ class GUI():
         self.data_table["columns"] = list(data.columns)
 
         for col in data.columns:
-            self.data_table.heading(col, text=col)
-            self.data_table.column(col, width=1500)
+            self.data_table.heading(col, text=col, anchor="center")
+            self.data_table.column(col, width=1500, anchor="center")
 
         # Insertar filas de datos
         for index, row in data.iterrows():
