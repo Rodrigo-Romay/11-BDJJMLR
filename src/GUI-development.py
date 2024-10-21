@@ -31,7 +31,7 @@ class GUI():
 
         # Etiqueta para mostrar la ruta del archivo con fuente más gruesa y texto blanco más brillante
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:", 
-                                       font=("Arial", 14, "bold"), text_color="white")  # Cambié el tamaño de la fuente y la puse más blanca
+                                       font=("Arial", 14, "bold"), text_color="white") 
         self.file_label.pack(pady=10)
 
         # Crear un Frame externo con bordes redondeados simulados
@@ -49,7 +49,7 @@ class GUI():
         self.v_scroll.pack(side="right", fill="y")
         self.h_scroll.pack(side="bottom", fill="x")
 
-        # Usamos ttk.Treeview para la tabla de datos
+        # Usa ttk.Treeview para la tabla de datos
         self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, xscrollcommand=self.h_scroll.set)
         self.data_table.pack(expand=True, fill="both")
 
@@ -61,7 +61,20 @@ class GUI():
 
         # Estilo del Treeview usando ttk.Style
         style = ttk.Style()
-        style.configure("Treeview", background="#1c1c1c", foreground="white", fieldbackground="#1c1c1c", rowheight=25)
+        style.configure("Treeview", 
+                        font=("Arial", 18),  # Aumenta el tamaño de la fuente de los datos
+                        background="#353535", 
+                        foreground="white", 
+                        fieldbackground="#1c1c1c", 
+                        rowheight=35)
+
+        # Cambia el tamaño de la fuente para los encabezados
+        style.configure("Treeview.Heading", 
+                        font=("Arial", 16, "bold"),  # Ajusta el tamaño de la fuente de los encabezados
+                        background="black", 
+                        foreground="black",
+                        rowheight=45)
+
         style.map("Treeview", background=[("selected", "#3b5998")], foreground=[("selected", "white")])
 
     def load_file(self):
@@ -133,6 +146,6 @@ class GUI():
                     self.data_table.column(col, width=max(tree_width // total_columns, 100), stretch=True)
 
 if __name__ == "__main__":
-    root = ctk.CTk()  # Usamos la ventana de customtkinter
+    root = ctk.CTk() 
     app = GUI(root)
     root.mainloop()
