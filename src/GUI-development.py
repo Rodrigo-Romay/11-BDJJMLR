@@ -10,59 +10,76 @@ class GUI():
         self.root.title("Data Frame Interface")
         self._file = None
 
-        # Configurar tema oscuro y azul predeterminado
-        ctk.set_appearance_mode("dark")
-        ctk.set_default_color_theme("blue")
+        # === Diseño ===
+        ctk.set_appearance_mode("dark")  # Tema oscuro
+        ctk.set_default_color_theme("blue")  # Tema con acentos azul apagado
 
-        # Dimensiones iniciales y configuraciones
-        self.root.geometry("900x650")
+        # Dimensiones iniciales y configuraciones de la ventana
+        self.root.geometry("1000x700")  # Ventana grande y espaciosa
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
 
         self.create_widgets()
 
     def create_widgets(self):
-        # Botón para cargar archivo con estilo personalizado
-        load_button = ctk.CTkButton(self.root, text="Load File", command=self.load_file, 
-                                    corner_radius=10, width=150, height=40,
-                                    fg_color="#3b5998", hover_color="#2e4370",
-                                    text_color="white", font=("Arial", 14, "bold"))
-        load_button.pack(pady=20)
+        # === Barra de título superior ===
+        title_label = ctk.CTkLabel(self.root, text="Data Frame Interface",
+                                   font=("Roboto", 30, "bold"), text_color="#D3D3D3")
+        title_label.pack(pady=20)
 
-        # Etiqueta para mostrar la ruta del archivo con fuente más gruesa y texto blanco más brillante
-        self.file_label = ctk.CTkLabel(self.root, text="File's Route:", 
-                                       font=("Arial", 14, "bold"), text_color="white")  # Cambié el tamaño de la fuente y la puse más blanca
+        # === Botón para cargar archivo ===
+        load_button = ctk.CTkButton(self.root, text="Load File", command=self.load_file,
+                                    corner_radius=15, width=170, height=50,
+                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                    text_color="white", font=("Roboto", 16, "bold"),
+                                    border_color="#707070", border_width=1)
+        load_button.pack(pady=15)
+
+        # === Etiqueta para mostrar la ruta del archivo ===
+        self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
+                                       font=("Roboto", 16), text_color="#A0A0A0")
         self.file_label.pack(pady=10)
 
-        # Crear un Frame externo con bordes redondeados simulados
-        outer_frame = ctk.CTkFrame(self.root, corner_radius=15, fg_color="#2f2f2f")
-        outer_frame.pack(padx=20, pady=20, fill="both", expand=True)
+        # === Crear un Frame externo con bordes redondeados y color suave ===
+        outer_frame = ctk.CTkFrame(self.root, corner_radius=15, fg_color="#2B2B2B")
+        outer_frame.pack(padx=40, pady=30, fill="both", expand=True)
 
-        # Configurar el Frame interior donde irá el Treeview y Scrollbars
-        self.table_frame = ctk.CTkFrame(outer_frame, corner_radius=15, fg_color="#2f2f2f")
-        self.table_frame.pack(padx=10, pady=10, fill="both", expand=True)
+        # === Frame interior donde irá el Treeview y Scrollbars ===
+        self.table_frame = ctk.CTkFrame(outer_frame, corner_radius=15, fg_color="#383838")
+        self.table_frame.pack(padx=15, pady=15, fill="both", expand=True)
 
-        # Scrollbars personalizadas
-        self.v_scroll = ctk.CTkScrollbar(self.table_frame, orientation="vertical")
-        self.h_scroll = ctk.CTkScrollbar(self.table_frame, orientation="horizontal")
+        # === Scrollbars personalizadas ===
+        self.v_scroll = ctk.CTkScrollbar(self.table_frame, orientation="vertical",
+                                         fg_color="#555555", button_color="#777777")
+        self.h_scroll = ctk.CTkScrollbar(self.table_frame, orientation="horizontal",
+                                         fg_color="#555555", button_color="#777777")
 
         self.v_scroll.pack(side="right", fill="y")
         self.h_scroll.pack(side="bottom", fill="x")
 
-        # Usamos ttk.Treeview para la tabla de datos
-        self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, xscrollcommand=self.h_scroll.set)
+
+        self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, 
+                                       xscrollcommand=self.h_scroll.set, show="headings")
         self.data_table.pack(expand=True, fill="both")
 
         self.v_scroll.configure(command=self.data_table.yview)
         self.h_scroll.configure(command=self.data_table.xview)
 
-        # Ajusta el tamaño de las columnas dinámicamente al cambiar el tamaño de la ventana
-        self.data_table.bind("<Configure>", self.center_columns_in_window)
-
-        # Estilo del Treeview usando ttk.Style
+        # === Cambios para hacer que la tabla se vea mejor ===
         style = ttk.Style()
-        style.configure("Treeview", background="#1c1c1c", foreground="white", fieldbackground="#1c1c1c", rowheight=25)
-        style.map("Treeview", background=[("selected", "#3b5998")], foreground=[("selected", "white")])
+
+        # Cambiar el estilo de las celdas
+        style.configure("Treeview", font=("Roboto", 15), 
+                        background="#2E2E2E", foreground="#A7FFA7",
+                        fieldbackground="#2E2E2E", rowheight=28)
+
+        # Cambiar el estilo de los encabezados
+        style.configure("Treeview.Heading", font=("Roboto", 16, "bold"),
+                        background="#4F4F4F", foreground="#464646", relief="raised")
+
+        # Mapa de colores al seleccionar una fila
+        style.map("Treeview", background=[("selected", "#3C5A73")],
+                  foreground=[("selected", "#FFFFFF")])
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -136,3 +153,4 @@ if __name__ == "__main__":
     root = ctk.CTk()  # Usamos la ventana de customtkinter
     app = GUI(root)
     root.mainloop()
+
