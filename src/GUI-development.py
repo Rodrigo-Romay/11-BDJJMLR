@@ -7,7 +7,7 @@ from Modulo import DataImport
 class GUI():
     def __init__(self, root):
         self.root = root
-        self.root.title("Data Frame Interface")
+        self.root.title("Trendify")
         self._file = None
 
         # === Diseño ===
@@ -23,9 +23,12 @@ class GUI():
 
     def create_widgets(self):
         # === Barra de título superior ===
-        title_label = ctk.CTkLabel(self.root, text="Data Frame Interface",
-                                   font=("Roboto", 30, "bold"), text_color="#D3D3D3")
-        title_label.pack(pady=20)
+        title_label = ctk.CTkLabel(self.root, 
+                            text="Trendify", 
+                            font=("Pacifico", 50, "bold"), 
+                            text_color="#d1d9e6")
+                            
+        title_label.pack(pady=20) 
 
         # === Botón para cargar archivo ===
         load_button = ctk.CTkButton(self.root, text="Load File", command=self.load_file,
@@ -37,7 +40,7 @@ class GUI():
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
-                                       font=("Roboto", 16), text_color="#A0A0A0")
+                                        font=("Roboto", 16), text_color="#A0A0A0")
         self.file_label.pack(pady=10)
 
         # === Crear un Frame externo con bordes redondeados y color suave ===
@@ -50,16 +53,16 @@ class GUI():
 
         # === Scrollbars personalizadas ===
         self.v_scroll = ctk.CTkScrollbar(self.table_frame, orientation="vertical",
-                                         fg_color="#555555", button_color="#777777")
+                                        fg_color="#555555", button_color="#777777")
         self.h_scroll = ctk.CTkScrollbar(self.table_frame, orientation="horizontal",
-                                         fg_color="#555555", button_color="#777777")
+                                        fg_color="#555555", button_color="#777777")
 
         self.v_scroll.pack(side="right", fill="y")
         self.h_scroll.pack(side="bottom", fill="x")
 
 
         self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, 
-                                       xscrollcommand=self.h_scroll.set, show="headings")
+                                        xscrollcommand=self.h_scroll.set, show="headings")
         self.data_table.pack(expand=True, fill="both")
 
         self.v_scroll.configure(command=self.data_table.yview)
@@ -78,8 +81,11 @@ class GUI():
                         background="#4F4F4F", foreground="#464646", relief="raised")
 
         # Mapa de colores al seleccionar una fila
-        style.map("Treeview", background=[("selected", "#3C5A73")],
-                  foreground=[("selected", "#FFFFFF")])
+        style.map("Treeview", 
+                    background=[("selected", "#4A4A4A")],  
+                    foreground=[("selected", "#F0F0F0")], 
+                    highlightcolor=[("selected", "#6B6B6B")],  
+                    highlightthickness=[("selected", 1)])
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
