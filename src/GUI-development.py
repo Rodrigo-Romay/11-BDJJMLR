@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox
+from tkinter import filedialog, messagebox, Toplevel, IntVar
 from tkinter import ttk
 import os
 from Modulo import DataImport
@@ -9,6 +9,8 @@ class GUI():
         self.root = root
         self.root.title("Trendify")
         self._file = None
+        self.columns_selected = []  # Lista para almacenar las columnas seleccionadas
+        self.output_column = None 
 
         # === Diseño ===
         ctk.set_appearance_mode("dark")  # Tema oscuro
@@ -80,12 +82,22 @@ class GUI():
         style.configure("Treeview.Heading", font=("Roboto", 16, "bold"),
                         background="#4F4F4F", foreground="#464646", relief="raised")
 
-        # Mapa de colores al seleccionar una fila
-        style.map("Treeview", 
-                    background=[("selected", "#4A4A4A")],  
-                    foreground=[("selected", "#F0F0F0")], 
-                    highlightcolor=[("selected", "#6B6B6B")],  
-                    highlightthickness=[("selected", 1)])
+        # === Botón para seleccionar columnas ===
+        self.select_columns_button = ctk.CTkButton(self.root, text="Select Columns", command=self.select_columns,
+                                                   corner_radius=15, width=170, height=50,
+                                                   fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                                   text_color="white", font=("Roboto", 16, "bold"),
+                                                   border_color="#707070", border_width=1)
+        self.select_columns_button.pack(pady=15)
+        self.select_columns_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
+
+        # === Botón para seleccionar la columna de salida ===
+        output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
+                              corner_radius=15, width=170, height=50,
+                              fg_color="#5A6F7D", hover_color="#3C4F5A",
+                              text_color="white", font=("Roboto", 16, "bold"),
+                              border_color="#707070", border_width=1)
+        output_button.pack(pady=15)
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -104,6 +116,7 @@ class GUI():
 
                 if not data.empty:
                     self.display_data(data)
+                    self.select_columns_button.configure(state="normal")  # Activar el botón de selección de columnas
                 else:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except FileNotFoundError:
@@ -112,6 +125,7 @@ class GUI():
                 messagebox.showerror("Error", "Invalid data.")
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred while loading the file: {str(e)}")
+        
 
     def display_data(self, data):
         # Limpiar cualquier dato anterior en el Treeview
@@ -132,31 +146,93 @@ class GUI():
         self.center_columns_in_window()
 
     def center_columns_in_window(self, event=None):
-        # Obtener el ancho total disponible del Treeview
         tree_width = self.data_table.winfo_width()
         total_columns = len(self.data_table["columns"])
 
         if total_columns > 0:
-            # Calcular el ancho necesario para todas las columnas combinadas
             total_data_width = total_columns * 150  # Ancho estimado por columna
             if total_data_width < tree_width:
-                # Si el ancho total de las columnas es menor que el Treeview, calcular el margen
                 remaining_space = tree_width - total_data_width
                 padding = remaining_space // 2  # Dividir el espacio restante para centrar
-
-                # Crear columnas vacías a los lados para centrado visual
                 self.data_table["show"] = "headings"  # Asegurar que solo se muestren los encabezados
                 self.data_table.column("#0", width=padding, stretch=False)
-
                 for col in self.data_table["columns"]:
-                    self.data_table.column(col, width=150, stretch=True)  # Asigna ancho a las columnas
+                    self.data_table.column(col, width=150, stretch=True)
             else:
-                # Si las columnas ocupan más espacio que el Treeview, ajustarlas dinámicamente
                 for col in self.data_table["columns"]:
                     self.data_table.column(col, width=max(tree_width // total_columns, 100), stretch=True)
+
+    def select_columns(self):
+        # Crear una nueva ventana para seleccionar las columnas
+        self.column_window = Toplevel(self.root)
+        self.column_window.title("Select Columns")
+
+        self.column_window.configure(bg="black")
+
+        # Variables para almacenar los estados de los checkboxes
+        self.column_vars = {}
+
+        # Crear checkboxes para cada columna
+        for idx, col in enumerate(self.data_table["columns"]):
+            var = IntVar()
+            self.column_vars[col] = var
+            checkbox = ctk.CTkCheckBox(self.column_window, text=col, variable=var, text_color="white",fg_color="black")
+            checkbox.pack(anchor="w")
+
+        # Botón para confirmar la selección
+        confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
+        confirm_button.pack(pady=10)
+
+    def confirm_selection(self):
+        self.columns_selected = [col for col, var in self.column_vars.items() if var.get() == 1]
+        if self.columns_selected:
+            messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
+        else:
+            messagebox.showwarning("No Selection", "No columns selected.")
+        self.column_window.destroy()
+
+    def select_output_column(self):
+        # Crear una nueva ventana para seleccionar la columna de salida
+        self.output_column_window = Toplevel(self.root)
+        self.output_column_window.title("Select Output Column")
+
+        # Cambiar el color de fondo de la ventana
+        self.output_column_window.configure(bg="black")
+
+        # Variable para almacenar la selección de columna de salida
+        self.output_column_var = ctk.StringVar(value="")  # Almacena la columna seleccionada
+
+        # Crear radiobuttons para cada columna
+        for idx, col in enumerate(self.data_table["columns"]):
+            radiobutton = ctk.CTkRadioButton(self.output_column_window, 
+                                            text=col, 
+                                            variable=self.output_column_var, 
+                                            value=col,  # Cada radiobutton tiene un valor único (la columna)
+                                            text_color="white",   # Texto en blanco
+                                            fg_color="black",     # Fondo negro
+                                            hover_color="#444444")  # Cambia el color al pasar el ratón
+            radiobutton.pack(anchor="w")
+
+        # Botón para confirmar la selección
+        confirm_button = ctk.CTkButton(self.output_column_window, 
+                                    text="Confirm Output Column", 
+                                    command=self.confirm_output_column,
+                                    fg_color="black",    # Fondo del botón negro
+                                    text_color="white")  # Texto blanco
+        confirm_button.pack(pady=10)
+
+    def confirm_output_column(self):
+        # Obtener la columna seleccionada
+        selected_output_column = self.output_column_var.get()
+        
+        if selected_output_column:
+            messagebox.showinfo("Output Column Selected", f"Selected Output Column: {selected_output_column}")
+            self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
+            self.output_column_window.destroy()  # Cierra la ventana emergente después de la selección
+        else:
+            messagebox.showwarning("No Column Selected", "Please select an output column.")
 
 if __name__ == "__main__":
     root = ctk.CTk()  # Usamos la ventana de customtkinter
     app = GUI(root)
     root.mainloop()
-
