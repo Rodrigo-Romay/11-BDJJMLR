@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox, Toplevel, IntVar
+from tkinter import filedialog, messagebox, Toplevel, IntVar, simpledialog
 from tkinter import ttk
 import os
 from Modulo import DataImport
@@ -11,6 +11,7 @@ class GUI():
         self._file = None
         self.columns_selected = []  # Lista para almacenar las columnas seleccionadas
         self.output_column = None 
+        self.null_option_selected = False
 
         # === Diseño ===
         ctk.set_appearance_mode("dark")  # Tema oscuro
@@ -38,7 +39,7 @@ class GUI():
                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                     text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
-        load_button.pack(pady=15)
+        load_button.pack(padx=10, pady=10)
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
@@ -47,7 +48,7 @@ class GUI():
 
         # === Crear un Frame externo con bordes redondeados y color suave ===
         outer_frame = ctk.CTkFrame(self.root, corner_radius=15, fg_color="#2B2B2B")
-        outer_frame.pack(padx=40, pady=30, fill="both", expand=True)
+        outer_frame.pack(padx=40, pady=10, fill="both", expand=True)
 
         # === Frame interior donde irá el Treeview y Scrollbars ===
         self.table_frame = ctk.CTkFrame(outer_frame, corner_radius=15, fg_color="#383838")
@@ -97,20 +98,92 @@ class GUI():
 
         # === Botón para seleccionar columnas ===
         self.select_columns_button = ctk.CTkButton(self.root, text="Select Columns", command=self.select_columns,
-                                                   corner_radius=15, width=170, height=50,
-                                                   fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                                   text_color="white", font=("Roboto", 16, "bold"),
-                                                   border_color="#707070", border_width=1)
-        self.select_columns_button.pack(pady=15)
+                                                    corner_radius=15, width=170, height=50,
+                                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                                    text_color="white", font=("Roboto", 16, "bold"),
+                                                    border_color="#707070", border_width=1)
+        self.select_columns_button.place(x=20, y=20)
         self.select_columns_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
 
         # === Botón para seleccionar la columna de salida ===
         output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
-                              corner_radius=15, width=170, height=50,
-                              fg_color="#5A6F7D", hover_color="#3C4F5A",
-                              text_color="white", font=("Roboto", 16, "bold"),
-                              border_color="#707070", border_width=1)
-        output_button.pack(pady=15)
+                                    corner_radius=15, width=170, height=50,
+                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                    text_color="white", font=("Roboto", 16, "bold"),
+                                    border_color="#707070", border_width=1)
+        output_button.place(x=20, y=80)
+
+        # === Menú desplegable para manejar valores nulos ===
+        self.null_handling_menu = ctk.CTkOptionMenu(
+            self.root,
+            values=["Delete Nuls", "Fill with Mean", "Fill with Median", "Fill with Constant Value"],
+            command=self.on_null_handling_option_selected
+        )
+        self.null_handling_menu.place(x=20, y=150)
+        self.null_handling_menu.configure(state="disabled")
+
+        # Crear una entrada de texto para el valor constante, pero estará oculta inicialmente
+        self.constant_value_entry = ctk.CTkEntry(self.root, placeholder_text="Enter constant value")
+        self.constant_value_entry.pack(pady=10)
+        self.constant_value_entry.pack_forget()  # Ocultarla hasta que se seleccione la opción "Fill with Constant Value"
+    
+    def on_null_handling_option_selected(self, option):
+        if self.null_option_selected:
+            messagebox.showwarning("Option Selected", "An option has already been selected.")
+            return
+        
+        # Mostrar u ocultar la entrada de texto según la opción seleccionada
+        if option == "Fill with Constant Value":
+            self.constant_value_entry.pack()  # Mostrar la entrada de texto si se selecciona "Fill with Constant Value"
+        else:
+            self.constant_value_entry.pack_forget()  # Ocultar la entrada de texto si se selecciona otra opción
+        
+        if option != "Fill with Constant Value":
+            self.handle_null_values(option)
+            self.null_option_selected = True  # Si no es la opción de valor constante, procesar los datos directamente
+        elif option == "Fill with Constant Value":
+            # Si es la opción de valor constante, solo permitimos continuar cuando el usuario ingrese un valor
+            self.root.bind("<Return>", lambda event: self.handle_null_values(option))  # Permitir confirmar con "Enter"
+            self.null_option_selected = True
+
+    def handle_null_values(self, option):
+        if option == "Delete Nuls":
+            # Eliminar filas con valores nulos en las columnas seleccionadas
+            self.data_table_df.dropna(subset=self.columns_selected, inplace=True)
+            messagebox.showinfo("Success", "Missing values have been removed.")
+            
+        elif option == "Fill with Mean":
+            # Rellenar valores nulos con la media de las columnas seleccionadas
+            for col in self.columns_selected:
+                mean_value = round(self.data_table_df[col].mean(), 4)  # Redondear a 4 decimales
+                self.data_table_df[col].fillna(mean_value, inplace=True)
+            messagebox.showinfo("Success", "Missing values have been filled with the mean.")
+            
+        elif option == "Fill with Median":
+            # Rellenar valores nulos con la mediana de las columnas seleccionadas
+            for col in self.columns_selected:
+                median_value = round(self.data_table_df[col].median(), 4)  # Redondear a 4 decimales
+                self.data_table_df[col].fillna(median_value, inplace=True)
+            messagebox.showinfo("Success", "Missing values have been filled with the median.")
+            
+        elif option == "Fill with Constant Value":
+            # Pedir al usuario un valor constante para rellenar los nulos
+            try:
+                constant_value = float(self.constant_value_entry.get())  # Convertir a float el valor introducido
+                for col in self.columns_selected:
+                    self.data_table_df[col].fillna(constant_value, inplace=True)
+                messagebox.showinfo("Success", "Missing values have been filled with the constant value.")
+                self.constant_value_entry.pack_forget()
+            except ValueError:
+                messagebox.showerror("Error", "Please enter a valid numeric value.")  # Si no es un número, muestra error
+
+        # Refrescar la tabla con los datos modificados
+        self.display_data(self.data_table_df)  ## Refrescar tabla después de modificar los datos
+        
+        # Mostrar mensaje de confirmación después de modificar los datos
+        messagebox.showinfo("Data Updated", "The data has been successfully updated.")
+
+        self.null_handling_menu.configure(state="disabled")
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -131,6 +204,20 @@ class GUI():
                     self.data_table_df= data
                     self.display_data(data)
                     self.select_columns_button.configure(state="normal")  # Activar el botón de selección de columnas
+
+                    # Reiniciar y reactivar el menú de nulos para la nueva base de datos
+                    self.null_handling_menu.configure(state="disabled")  # Deshabilitar hasta que se seleccionen las columnas
+                    self.null_handling_menu.set("Nulls")  # Limpiar la selección anterior del menú
+
+                    # Reiniciar las selecciones anteriores
+                    self.columns_selected = []
+                    self.output_column = None
+                    self.input_columns_label.configure(text="Input Columns: None")
+                    self.output_column_label.configure(text="Output Column: None")
+                    self.null_option_selected = False
+
+                    messagebox.showinfo("File Loaded", "The new file has been loaded successfully.")
+
                 else:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except FileNotFoundError:
@@ -206,9 +293,17 @@ class GUI():
                 nan_message = "\n".join([f"Column '{col}' has {count} missing values." for col, count in nan_info.items()])
                 messagebox.showwarning("Alert!", f"Missing values detected:\n\n{nan_message}")
                 self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+                self.column_window.destroy()
+                if self.output_column: 
+                    self.null_handling_menu.configure(state="normal")
+                
             else:
                 messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
                 self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+                self.column_window.destroy()
+                if self.output_column: 
+                    self.null_handling_menu.configure(state="normal")
+            
 
         else:
             messagebox.showwarning("No Selection", "No columns selected.")
@@ -269,6 +364,11 @@ class GUI():
             self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
             self.output_column_window.destroy()
             self.output_column_label.configure(text=f"Output Column: {self.output_column}")
+
+            # Habilitar el menú de manejo de valores nulos si se han seleccionado columnas
+            if self.columns_selected:  ## Solo habilitar si también hay columnas de entrada seleccionadas
+                self.null_handling_menu.configure(state="normal")
+
         else:
             messagebox.showwarning("No Column Selected", "Please select an output column.")
 
