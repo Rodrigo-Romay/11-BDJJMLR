@@ -62,10 +62,23 @@ class GUI():
         self.v_scroll.pack(side="right", fill="y")
         self.h_scroll.pack(side="bottom", fill="x")
 
-
         self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, 
                                         xscrollcommand=self.h_scroll.set, show="headings")
         self.data_table.pack(expand=True, fill="both")
+
+        # === Frame para las etiquetas de columnas ===
+        self.labels_frame = ctk.CTkFrame(self.root)
+        self.labels_frame.pack(pady=5, fill="x")  # Colocar debajo de la tabla
+
+        # === Etiqueta para mostrar columnas de entrada seleccionadas ===
+        self.input_columns_label = ctk.CTkLabel(self.labels_frame, text="Input Columns: None",
+                                                font=("Roboto", 16), text_color="#A0A0A0")
+        self.input_columns_label.pack(side="top", padx=(10, 0))  # A la izquierda
+
+        # === Etiqueta para mostrar la columna de salida seleccionada ===
+        self.output_column_label = ctk.CTkLabel(self.labels_frame, text="Output Column: None",
+                                                font=("Roboto", 16), text_color="#A0A0A0")
+        self.output_column_label.pack(side="bottom", padx=(10, 0))  # A la izquierda, con espacio
 
         self.v_scroll.configure(command=self.data_table.yview)
         self.h_scroll.configure(command=self.data_table.xview)
@@ -115,6 +128,7 @@ class GUI():
                 data = data_importer._data  # Obtener los datos cargados
 
                 if not data.empty:
+                    self.data_table_df= data
                     self.display_data(data)
                     self.select_columns_button.configure(state="normal")  # Activar el botón de selección de columnas
                 else:
@@ -185,11 +199,35 @@ class GUI():
 
     def confirm_selection(self):
         self.columns_selected = [col for col, var in self.column_vars.items() if var.get() == 1]
+
         if self.columns_selected:
-            messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
+            nan_info = self.check_for_missing_values()
+            if nan_info:
+                nan_message = "\n".join([f"Column '{col}' has {count} missing values." for col, count in nan_info.items()])
+                messagebox.showwarning("Alert!", f"Missing values detected:\n\n{nan_message}")
+                self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+            else:
+                messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
+                self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+
         else:
             messagebox.showwarning("No Selection", "No columns selected.")
+
         self.column_window.destroy()
+
+    def check_for_missing_values(self):
+        nan_columns = {}
+    
+        for col in self.columns_selected:
+            # Contar cuántos valores NaN o vacíos hay en la columna
+            missing_count = self.data_table_df[col].isna().sum()
+            if missing_count > 0:
+                nan_columns[col] = missing_count
+
+        if nan_columns:
+            return nan_columns
+        else:
+            return None
 
     def select_output_column(self):
         # Crear una nueva ventana para seleccionar la columna de salida
@@ -209,7 +247,7 @@ class GUI():
                                             variable=self.output_column_var, 
                                             value=col,  # Cada radiobutton tiene un valor único (la columna)
                                             text_color="white",   # Texto en blanco
-                                            fg_color="black",     # Fondo negro
+                                            fg_color="blue",     # Fondo negro
                                             hover_color="#444444")  # Cambia el color al pasar el ratón
             radiobutton.pack(anchor="w")
 
@@ -217,8 +255,9 @@ class GUI():
         confirm_button = ctk.CTkButton(self.output_column_window, 
                                     text="Confirm Output Column", 
                                     command=self.confirm_output_column,
-                                    fg_color="black",    # Fondo del botón negro
-                                    text_color="white")  # Texto blanco
+                                    fg_color="blue",    # Fondo del botón negro
+                                    text_color="white") # Texto blanco
+                                    
         confirm_button.pack(pady=10)
 
     def confirm_output_column(self):
@@ -228,7 +267,8 @@ class GUI():
         if selected_output_column:
             messagebox.showinfo("Output Column Selected", f"Selected Output Column: {selected_output_column}")
             self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
-            self.output_column_window.destroy()  # Cierra la ventana emergente después de la selección
+            self.output_column_window.destroy()
+            self.output_column_label.configure(text=f"Output Column: {self.output_column}")
         else:
             messagebox.showwarning("No Column Selected", "Please select an output column.")
 
