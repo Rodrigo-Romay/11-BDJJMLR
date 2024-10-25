@@ -106,12 +106,13 @@ class GUI():
         self.select_columns_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
 
         # === Botón para seleccionar la columna de salida ===
-        output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
+        self.select_output_botton = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
                                     corner_radius=15, width=170, height=50,
                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                     text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
-        output_button.place(x=20, y=80)
+        self.select_output_botton.place(x=20, y=80)
+        self.select_output_botton.configure(state="disabled")
 
         # === Menú desplegable para manejar valores nulos ===
         self.null_handling_menu = ctk.CTkOptionMenu(
@@ -124,8 +125,8 @@ class GUI():
 
         # Crear una entrada de texto para el valor constante, pero estará oculta inicialmente
         self.constant_value_entry = ctk.CTkEntry(self.root, placeholder_text="Enter constant value")
-        self.constant_value_entry.pack(pady=10)
-        self.constant_value_entry.pack_forget()  # Ocultarla hasta que se seleccione la opción "Fill with Constant Value"
+        self.constant_value_entry.place(x=20, y=190)
+        self.constant_value_entry.place_forget()  # Ocultarla hasta que se seleccione la opción "Fill with Constant Value"
     
     def on_null_handling_option_selected(self, option):
         if self.null_option_selected:
@@ -134,9 +135,9 @@ class GUI():
         
         # Mostrar u ocultar la entrada de texto según la opción seleccionada
         if option == "Fill with Constant Value":
-            self.constant_value_entry.pack()  # Mostrar la entrada de texto si se selecciona "Fill with Constant Value"
+            self.constant_value_entry.place(x=20, y=190)  # Mostrar la entrada de texto si se selecciona "Fill with Constant Value"
         else:
-            self.constant_value_entry.pack_forget()  # Ocultar la entrada de texto si se selecciona otra opción
+            self.constant_value_entry.place_forget()  # Ocultar la entrada de texto si se selecciona otra opción
         
         if option != "Fill with Constant Value":
             self.handle_null_values(option)
@@ -173,7 +174,7 @@ class GUI():
                 for col in self.columns_selected:
                     self.data_table_df[col].fillna(constant_value, inplace=True)
                 messagebox.showinfo("Success", "Missing values have been filled with the constant value.")
-                self.constant_value_entry.pack_forget()
+                self.constant_value_entry.place_forget()
             except ValueError:
                 messagebox.showerror("Error", "Please enter a valid numeric value.")  # Si no es un número, muestra error
 
@@ -203,7 +204,8 @@ class GUI():
                 if not data.empty:
                     self.data_table_df= data
                     self.display_data(data)
-                    self.select_columns_button.configure(state="normal")  # Activar el botón de selección de columnas
+                    self.select_columns_button.configure(state="normal")
+                    self.select_output_botton.configure(state="normal")  # Activar el botón de selección de columnas
 
                     # Reiniciar y reactivar el menú de nulos para la nueva base de datos
                     self.null_handling_menu.configure(state="disabled")  # Deshabilitar hasta que se seleccionen las columnas
@@ -216,9 +218,9 @@ class GUI():
                     self.output_column_label.configure(text="Output Column: None")
                     self.null_option_selected = False
 
-                    messagebox.showinfo("File Loaded", "The new file has been loaded successfully.")
-
                 else:
+                    self.data_table.delete(*self.data_table.get_children())
+                    self.data_table["columns"]=list()
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except FileNotFoundError:
                 messagebox.showerror("Error", "File not found.")
