@@ -16,6 +16,7 @@ class GUI():
         # === Diseño ===
         ctk.set_appearance_mode("dark")
         ctk.set_default_color_theme("blue")
+        
 
         # Dimensiones iniciales y configuraciones de la ventana
         self.root.geometry("1000x700")
@@ -70,27 +71,42 @@ class GUI():
         # === Variable para manejar las opciones de nulos ===
         self.null_handling_option = ctk.StringVar(value="Select an option")
 
-        # === Botón para preprocesar datos ===
-        self.preprocess_button = ctk.CTkButton(self.root, text="Preprocess Data", command=self.preprocess_data,
-                                                corner_radius=15, width=170, height=50,
-                                                fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                                text_color="white", font=("Roboto", 16, "bold"),
-                                                border_color="#707070", border_width=1)
-        self.preprocess_button.place(x=20, y=140)
-        self.preprocess_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
-
         # === Menú desplegable para manejar valores nulos ===
         self.null_option_menu = ctk.CTkOptionMenu(
             self.root,
             variable=self.null_handling_option,
             values=["Delete rows with nulls", "Fill with mean", "Fill with median", "Fill with constant"],
             command=self.handle_null_option,
-            button_color="#5A6F7D",
+            button_color="grey",
             text_color="white",
             fg_color="#383838",
+            corner_radius=0
         )
-        self.null_option_menu.place(x=200, y=140)
+        self.null_option_menu.place(x=35, y=170)
         self.null_option_menu.configure(state="disabled")
+        self.null_option_menu.place_forget()
+
+        # === Entrada para valor constante (inicialmente desactivada) ===
+        self.constant_entry = ctk.CTkEntry(self.root, placeholder_text="Constant",
+                                           width=80, height=30, font=("Roboto", 16), corner_radius=0, border_width=0)
+        self.constant_entry.place(x=60, y=203)
+        self.constant_entry.configure(state="disabled")  # Deshabilitado hasta seleccionar opción
+        self.constant_entry.place_forget()
+
+        # === Botón para preprocesar datos ===
+        self.preprocess_button = ctk.CTkButton(self.root, text="Preprocess Data", command=self.preprocess_data,
+                                                corner_radius=15, width=170, height=100,
+                                                fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                                text_color="white", font=("Roboto", 16, "bold"),
+                                                border_color="#707070", border_width=1, anchor="n")
+        self.preprocess_button.place(x=20, y=140)
+        self.preprocess_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
+        self.preprocess_button.lower()
+
+        # Vincula el evento de presionar "Enter" en el campo de entrada a `apply_constant_fill`
+        self.constant_entry.bind("<Return>", self.apply_constant_fill)
+        # Vincula el evento de presionar "Escape" a `hide_constant_entry`
+        self.root.bind("<Escape>", self.hide_constant_entry)
 
         # === Frame para las etiquetas de columnas ===
         self.labels_frame = ctk.CTkFrame(self.root)
@@ -111,13 +127,20 @@ class GUI():
         style = ttk.Style()
         # Cambiar el estilo de las celdas
         style.configure("Treeview", font=("Roboto", 15), 
-                        background="#2E2E2E", foreground="#A7FFA7",
+                        background="#2E2E2E", foreground="white",
                         fieldbackground="#2E2E2E", rowheight=28)
         # Cambiar el estilo de los encabezados
         style.configure("Treeview.Heading", font=("Roboto", 16, "bold"),
                         background="#4F4F4F", foreground="#464646", relief="raised")
+        
+        style.map("Treeview", 
+                    background=[("selected", "#4A4A4A")],  
+                    foreground=[("selected", "#F0F0F0")], 
+                    highlightcolor=[("selected", "#6B6B6B")],  
+                    highlightthickness=[("selected", 1)])
+
         # === Botón para seleccionar columnas ===
-        self.select_columns_button = ctk.CTkButton(self.root, text="Select Columns", command=self.select_columns,
+        self.select_columns_button = ctk.CTkButton(self.root, text="Select Input Columns ", command=self.select_columns,
                                                     corner_radius=15, width=170, height=50,
                                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                                     text_color="white", font=("Roboto", 16, "bold"),
@@ -149,6 +172,9 @@ class GUI():
                     self.data_table_df= data
                     self.display_data(data)
                     self.preprocess_button.configure(state="normal") 
+                    self.select_columns_button.configure(state="disabled")
+                    self.select_output_botton.configure(state="disabled")
+                    self.null_option_menu.place_forget()
                     # Reiniciar las selecciones anteriores
                     self.columns_selected = []
                     self.output_column = None
@@ -157,6 +183,9 @@ class GUI():
                 else:
                     self.data_table.delete(*self.data_table.get_children())
                     self.data_table["columns"]=list()
+                    self.null_option_menu.place_forget()
+                    self.select_columns_button.configure(state="disabled")
+                    self.select_output_botton.configure(state="disabled")
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except FileNotFoundError:
                 messagebox.showerror("Error", "File not found.")
@@ -204,6 +233,7 @@ class GUI():
                 null_columns_info = '\n'.join([f"{col}: {count}" for col, count in self.null_counts_dict.items()])
                 messagebox.showinfo("Null Values Detected", f"Null values found:\n{null_columns_info}")
                 self.null_option_menu.configure(state="normal")
+                self.null_option_menu.place(x=35, y=170)
             else:
                 messagebox.showinfo("No Null Values", "No null values detected in the dataset.")
             self.preprocess_button.configure(state="disabled")
@@ -226,7 +256,7 @@ class GUI():
             if confirm:
                 for col in self.null_counts_dict.keys():
                     if self.data_table_df[col].dtype in ['float64', 'int64']:
-                        mean_value = self.data_table_df[col].mean()
+                        mean_value = round(self.data_table_df[col].mean(), 4)
                         self.data_table_df[col] = self.data_table_df[col].fillna(mean_value)
                 messagebox.showinfo("Filled with Mean", "Null values have been filled with the mean of their respective columns.")
                 self.display_data(self.data_table_df)
@@ -239,7 +269,7 @@ class GUI():
             if confirm:
                 for col in self.null_counts_dict.keys():
                     if self.data_table_df[col].dtype in ['float64', 'int64']:
-                        median_value = self.data_table_df[col].median()
+                        median_value = round(self.data_table_df[col].median(), 4)
                         self.data_table_df[col] = self.data_table_df[col].fillna(median_value)
                 messagebox.showinfo("Filled with Median", "Null values have been filled with the median of their respective columns.")
                 self.display_data(self.data_table_df)
@@ -248,16 +278,34 @@ class GUI():
                 self.select_output_botton.configure(state="normal")
 
         elif option == "Fill with constant":
-            confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
-            if confirm:
-                constant_value = simpledialog.askfloat("Input Constant", "Enter the constant value to fill nulls:")
-                if constant_value is not None:
-                    self.data_table_df.fillna(constant_value, inplace=True)
-                    messagebox.showinfo("Filled with Constant", "Null values have been filled with the specified constant.")
-                    self.display_data(self.data_table_df)
-                    self.null_option_menu.configure(state="disabled")
-                    self.select_columns_button.configure(state="normal")
-                    self.select_output_botton.configure(state="normal")
+            # Habilita el campo de entrada para que el usuario ingrese el valor
+            self.constant_entry.place(x=60, y=203)
+            self.constant_entry.configure(state="normal")
+            self.constant_entry.focus()  # Da el foco al campo de entrada para escribir directamente
+
+    def hide_constant_entry(self, event=None):
+        self.constant_entry.place_forget() 
+        self.constant_entry.configure(state="disabled")
+
+    def apply_constant_fill(self, event=None):
+        confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
+        if confirm:
+            try:
+                # Obtener el valor constante ingresado por el usuario
+                constant_value = float(self.constant_entry.get())
+                # Aplicar el llenado con el valor constante
+                self.data_table_df.fillna(constant_value, inplace=True)
+                messagebox.showinfo("Filled with Constant", "Null values have been filled with the specified constant.")
+                self.display_data(self.data_table_df)
+                # Desactiva el campo de entrada después de aplicar
+                self.constant_entry.configure(state="disabled")
+                self.constant_entry.delete(0, 'end')  # Limpia el campo de entrada
+                self.constant_entry.place_forget() 
+                self.null_option_menu.configure(state="disabled")
+                self.select_columns_button.configure(state="normal")
+                self.select_output_botton.configure(state="normal")
+            except ValueError:
+                messagebox.showwarning("Invalid Input", "Please enter a valid number for the constant.")
 
     def select_columns(self):
         # Crear una nueva ventana para seleccionar las columnas
