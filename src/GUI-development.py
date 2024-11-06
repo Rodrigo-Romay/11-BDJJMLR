@@ -1,8 +1,11 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox, Toplevel, IntVar, simpledialog
+from tkinter import filedialog, messagebox, Toplevel, IntVar
 from tkinter import ttk
-import os
 from Modulo import DataImport
+from sklearn.linear_model import LinearRegression
+import numpy as np
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
 
 class GUI():
     def __init__(self, root):
@@ -121,8 +124,10 @@ class GUI():
         self.output_column_label = ctk.CTkLabel(self.labels_frame, text="Output Column: None",
                                                 font=("Roboto", 16), text_color="#A0A0A0")
         self.output_column_label.pack(side="bottom", padx=(10, 0))
+
         self.v_scroll.configure(command=self.data_table.yview)
         self.h_scroll.configure(command=self.data_table.xview)
+
         # === Cambios para hacer que la tabla se vea mejor ===
         style = ttk.Style()
         # Cambiar el estilo de las celdas
@@ -148,13 +153,22 @@ class GUI():
         self.select_columns_button.place(x=20, y=20)
         self.select_columns_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
         # === Botón para seleccionar la columna de salida ===
-        self.select_output_botton = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
+        self.select_output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
                                     corner_radius=15, width=170, height=50,
                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                     text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
-        self.select_output_botton.place(x=20, y=80)
-        self.select_output_botton.configure(state="disabled")
+        self.select_output_button.place(x=20, y=80)
+        self.select_output_button.configure(state="disabled")
+
+        self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.crear_modelo,
+                                                corner_radius=15, width=170, height=50,
+                                                fg_color="#5A6F7D", hover_color="#3C4F5A",
+                                                text_color="white", font=("Roboto", 16, "bold"),
+                                                border_color="#707070", border_width=1)
+        self.create_model_button.place(x=300, y=80)
+        self.create_model_button.configure(state="disabled")
+        
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -173,7 +187,7 @@ class GUI():
                     self.display_data(data)
                     self.preprocess_button.configure(state="normal") 
                     self.select_columns_button.configure(state="disabled")
-                    self.select_output_botton.configure(state="disabled")
+                    self.select_output_button.configure(state="disabled")
                     self.null_option_menu.place_forget()
                     # Reiniciar las selecciones anteriores
                     self.columns_selected = []
@@ -185,7 +199,7 @@ class GUI():
                     self.data_table["columns"]=list()
                     self.null_option_menu.place_forget()
                     self.select_columns_button.configure(state="disabled")
-                    self.select_output_botton.configure(state="disabled")
+                    self.select_output_button.configure(state="disabled")
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except FileNotFoundError:
                 messagebox.showerror("Error", "File not found.")
@@ -249,7 +263,7 @@ class GUI():
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
                 self.select_columns_button.configure(state="normal")
-                self.select_output_botton.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with mean":
             confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
@@ -262,7 +276,7 @@ class GUI():
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
                 self.select_columns_button.configure(state="normal")
-                self.select_output_botton.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with median":
             confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
@@ -275,7 +289,7 @@ class GUI():
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
                 self.select_columns_button.configure(state="normal")
-                self.select_output_botton.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with constant":
             # Habilita el campo de entrada para que el usuario ingrese el valor
@@ -303,7 +317,7 @@ class GUI():
                 self.constant_entry.place_forget() 
                 self.null_option_menu.configure(state="disabled")
                 self.select_columns_button.configure(state="normal")
-                self.select_output_botton.configure(state="normal")
+                self.select_output_button.configure(state="normal")
             except ValueError:
                 messagebox.showwarning("Invalid Input", "Please enter a valid number for the constant.")
 
@@ -379,9 +393,79 @@ class GUI():
             self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
             self.output_column_window.destroy()
             self.output_column_label.configure(text=f"Output Column: {self.output_column}")
+            self.create_model_button.configure(state="normal")
 
         else:
             messagebox.showwarning("No Column Selected", "Please select an output column.")
+
+    def crear_modelo(self):
+        input_cols = self.columns_selected 
+        output_col = self.output_column
+
+        if input_cols and output_col:
+            try:
+                X = self.data_table_df[input_cols].values
+                y = self.data_table_df[output_col].values  
+                
+                if np.issubdtype(X.dtype, np.number) and np.issubdtype(y.dtype, np.number):
+                    model = LinearRegression()
+                    model.fit(X, y)
+
+                    if X.shape[1] == 1:  # Si hay solo una columna de entrada (regresión lineal simple)
+                        self.graficar_datos(X, y, model)
+                    elif X.shape[1] == 2:  # Si hay dos columnas de entrada, podemos hacer un gráfico 3D
+                        self.graficar_datos_3D(X, y, model)
+                    else:
+                        messagebox.showinfo("Modelo creado", "Modelo creado exitosamente, pero no se puede graficar con más de dos entradas.")
+
+                else:
+                    messagebox.showwarning("Datos no numéricos", "Las columnas seleccionadas deben ser numéricas.")
+            except Exception as e:
+                messagebox.showerror("Error al crear el modelo", f"Se produjo un error al crear el modelo: {e}")
+        else:
+            messagebox.showwarning("Seleccionar columnas", "Por favor, selecciona las columnas de entrada y salida.")
+
+    def graficar_datos(self, X, y, model):
+        plt.figure(figsize=(8, 6))
+        
+        plt.scatter(X, y, color='blue', label='Datos')
+        
+        plt.plot(X, model.predict(X), color='red', label='Línea de Regresión')
+        
+        plt.xlabel('Entrada')
+        plt.ylabel('Salida')
+        plt.title('Regresión Lineal')
+        plt.legend()
+        
+        plt.show()
+
+    def graficar_datos_3D(self, X, y, model):
+        try:
+            fig = plt.figure(figsize=(10, 7))
+            ax = fig.add_subplot(111, projection='3d')
+
+            ax.scatter(X[:, 0], X[:, 1], y, color='b', label='Datos reales')
+
+            y_pred = model.predict(X)
+            
+            ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='r', alpha=0.5, label='Modelo de regresión')
+
+            ax.set_xlabel(self.columns_selected[0])
+            ax.set_ylabel(self.columns_selected[1]) 
+            ax.set_zlabel(self.output_column)
+            
+            ax.view_init(elev=30, azim=45)  
+
+            ax.set_facecolor('black')
+            fig.patch.set_facecolor('black')
+
+            ax.grid(True, color='gray', linestyle='-', linewidth=0.5)
+            ax.tick_params(axis='both', direction='in', length=6, width=1, colors='white')
+
+            plt.show()
+
+        except Exception as e:
+            messagebox.showerror("Error", f"Se produjo un error al graficar los datos 3D: {str(e)}")
 
 if __name__ == "__main__":
     root = ctk.CTk()  # Ventana de customtkinter
