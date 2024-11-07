@@ -16,6 +16,7 @@ class GUI():
         self.output_column = None 
         self._option_selected = False
         self.description = None
+        self.description_saved = None
 
         # === Diseño ===
         ctk.set_appearance_mode("dark")
@@ -453,10 +454,10 @@ class GUI():
                 messagebox.showinfo("Model Loaded", f"Model loaded successfully from {file_path}.")
 
                 formula = model_data.get("formula")
-                input_columns = model_data.get("input_columns")
-                output_column = model_data.get("output_column")
+                input_columns = self.columns_selected
+                output_column = self.output_column
                 error_adjustment = model_data.get("error_adjustment")
-                description = model_data.get("description")
+                description = self.description_saved
 
                 print(f"Formula: {formula}")
                 print(f"Input Columns: {input_columns}")
@@ -520,7 +521,7 @@ class GUI():
             messagebox.showinfo("Success", "Description added successfully and ready to be saved.")
 
     # Almacenar la descripción en un atributo de la clase
-        self.model_data = {
+        self.description_saved = {
             "description": self.description
 
         # Se pueden añadir más detalles del modelo aquí si es necesario
