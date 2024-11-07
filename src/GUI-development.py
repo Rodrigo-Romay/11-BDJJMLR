@@ -18,6 +18,8 @@ class GUI():
         self._option_selected = False
         self.description = None
         self.description_saved = None
+        self.model_formula = None
+        self.model_metrics = {}
 
         # === Diseño ===
         ctk.set_appearance_mode("dark")
@@ -439,32 +441,27 @@ class GUI():
             messagebox.showwarning("No columns selected", "Please, select Input and Output columns.")
     
     def save_model(self):
-        # Abrir un diálogo para seleccionar el archivo de modelo
-        file_path = filedialog.askopenfilename(filetypes=[("PKL files", "*.pkl"), ("Joblib files", "*.joblib")])
+        file_path = filedialog.asksaveasfilename(filetypes=[("PKL files", "*.pkl"), ("Joblib files", "*.joblib")])
         
         if file_path:
             try:
+                model_data = {
+                    "formula": self.model_formula,
+                    "input_columns": self.columns_selected,
+                    "output_column": self.output_column,
+                    "r2_score": self.model_metrics.get("r2"),
+                    "ecm": self.model_metrics.get("ecm"),
+                    "description": self.description_saved.get("description")
+                    }
                 if file_path.endswith(".pkl"):
-                    with open(file_path, 'rb') as file:
-                        model_data = pickle.load(file)
+                    with open(file_path, 'wb') as file:
+                        pickle.dump(model_data, file)
                 elif file_path.endswith(".joblib"):
-                    model_data = joblib.load(file_path)
+                    joblib.dump(model_data, file_path)
                 else:
                     raise ValueError("Unsupported file format.")
                 
                 messagebox.showinfo("Model Loaded", f"Model loaded successfully from {file_path}.")
-
-                formula = model_data.get("formula")
-                input_columns = self.columns_selected
-                output_column = self.output_column
-                error_adjustment = model_data.get("error_adjustment")
-                description = self.description_saved
-
-                print(f"Formula: {formula}")
-                print(f"Input Columns: {input_columns}")
-                print(f"Output Column: {output_column}")
-                print(f"Error Adjustment: {error_adjustment}")
-                print(f"Description: {description}")
 
             except Exception as e:
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
@@ -491,6 +488,10 @@ class GUI():
         y_pred = model.predict(X)
         r2_score = model.score(X, y)  # R²
         ecm = np.mean((y - y_pred) ** 2)  # ECM
+
+        self.model_formula = formula_str
+        self.model_metrics = {"r2": r2_score, "ecm":ecm}
+
         r2_str = f"R² = {r2_score:.4f}"
         mse_str = f"ECM = {ecm:.4f}"
 
@@ -531,6 +532,9 @@ class GUI():
             # Calcular el Error Cuadrático Medio (ECM)
             ecm = mean_squared_error(y, y_pred)
             ecm_str = f"ECM = {ecm:.4f}"
+
+            self.model_formula = formula_str
+            self.model_metrics = {"r2":r2_score, "ecm": ecm}
 
             # Colocar la fórmula como título en la parte superior de la ventana
             plt.suptitle(formula_str, fontsize=12, color='black', ha='center', bbox=dict(facecolor='white', alpha=0.7))
