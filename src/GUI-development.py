@@ -44,13 +44,7 @@ class GUI():
                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                     text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
-        load_button.pack(padx=10, pady=10)
-        
-        # === Botón para guardar el modelo ===
-        save_button = ctk.CTkButton(self.root, text="Save Model", command=self.save_model, corner_radius=15, width=170, height=50,
-                                    fg_color="#5A6F7D", hover_color="#3C4F5A", text_color="white", font=("Roboto", 16, "bold"),
-                                    border_color="#707070", border_width=1)
-        save_button.place(x=300, y=150)
+        load_button.pack(padx=10, pady=10)        
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
@@ -164,14 +158,14 @@ class GUI():
         self.select_output_button.place(x=20, y=80)
         self.select_output_button.configure(state="disabled")
 
-        label = ctk.CTkLabel(root, text="Model description (Optional):")
-        label.pack(pady=10)
+        self.label_description = ctk.CTkLabel(root, text="Model description (Optional):")
+        self.label_description.pack(pady=10)
 
         self.description_text = ttk.Entry(root,  width=40)
         self.description_text.pack(pady=10)
 
-        create_button = ctk.CTkButton(root, text="Save description", command=self.model_description)
-        create_button.pack(pady=20)
+        self.save_description = ctk.CTkButton(root, text="Save description", command=self.model_description)
+        self.save_description.pack(pady=20)
         
 
         self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.create_model,
@@ -181,6 +175,16 @@ class GUI():
                                                 border_color="#707070", border_width=1)
         self.create_model_button.place(x=300, y=80)
         self.create_model_button.configure(state="disabled")
+
+        # === Botón para guardar el modelo ===
+        self.save_button = ctk.CTkButton(self.root, text="Save Model", command=self.save_model, corner_radius=15, width=170, height=50,
+                                    fg_color="#5A6F7D", hover_color="#3C4F5A", text_color="white", font=("Roboto", 16, "bold"),
+                                    border_color="#707070", border_width=1)
+        self.save_button.place(x=300, y=150)
+        self.save_button.configure(state="disabled")
+
+
+
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -411,6 +415,7 @@ class GUI():
             try:
                 X = self.data_table_df[input_cols].values
                 y = self.data_table_df[output_col].values  
+                self.save_button.configure(state="normal")
                 
                 if not self.description_text.get():
                     messagebox.showinfo("Reminder", "No description added.")
