@@ -5,7 +5,6 @@ from Modulo import DataImport
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
 import pickle
 import joblib
 class GUI():
@@ -48,17 +47,17 @@ class GUI():
         load_button.pack(padx=10, pady=10)
         
         # === Botón para guardar el modelo ===
-        save_button = ctk.CTkButton(self.root, text="Save Model", command=self.guardar_modelo, corner_radius=15, width=170, height=50,
+        save_button = ctk.CTkButton(self.root, text="Save Model", command=self.save_model, corner_radius=15, width=170, height=50,
                                     fg_color="#5A6F7D", hover_color="#3C4F5A", text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
-        save_button.place(x=300, y=150)  # Posición del botón de guardado
+        save_button.place(x=300, y=150)
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
                                         font=("Roboto", 16), text_color="#A0A0A0")
         self.file_label.pack(pady=10)
 
-        # === Crear un Frame externo ===
+        # === Frame externo ===
         outer_frame = ctk.CTkFrame(self.root, corner_radius=15, fg_color="#2B2B2B")
         outer_frame.pack(padx=40, pady=10, fill="both", expand=True)
 
@@ -66,7 +65,7 @@ class GUI():
         self.table_frame = ctk.CTkFrame(outer_frame, corner_radius=15, fg_color="#383838")
         self.table_frame.pack(padx=15, pady=15, fill="both", expand=True)
 
-        # === Scrollbars personalizadas ===
+        # === Scrollbars ===
         self.v_scroll = ctk.CTkScrollbar(self.table_frame, orientation="vertical",
                                         fg_color="#555555", button_color="#777777")
         self.h_scroll = ctk.CTkScrollbar(self.table_frame, orientation="horizontal",
@@ -101,7 +100,7 @@ class GUI():
         self.constant_entry = ctk.CTkEntry(self.root, placeholder_text="Constant",
                                            width=80, height=30, font=("Roboto", 16), corner_radius=0, border_width=0)
         self.constant_entry.place(x=60, y=203)
-        self.constant_entry.configure(state="disabled")  # Deshabilitado hasta seleccionar opción
+        self.constant_entry.configure(state="disabled")
         self.constant_entry.place_forget()
 
         # === Botón para preprocesar datos ===
@@ -111,12 +110,10 @@ class GUI():
                                                 text_color="white", font=("Roboto", 16, "bold"),
                                                 border_color="#707070", border_width=1, anchor="n")
         self.preprocess_button.place(x=20, y=140)
-        self.preprocess_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
+        self.preprocess_button.configure(state="disabled")
         self.preprocess_button.lower()
 
-        # Vincula el evento de presionar "Enter" en el campo de entrada a `apply_constant_fill`
         self.constant_entry.bind("<Return>", self.apply_constant_fill)
-        # Vincula el evento de presionar "Escape" a `hide_constant_entry`
         self.root.bind("<Escape>", self.hide_constant_entry)
 
         # === Frame para las etiquetas de columnas ===
@@ -138,11 +135,10 @@ class GUI():
 
         # === Cambios para hacer que la tabla se vea mejor ===
         style = ttk.Style()
-        # Cambiar el estilo de las celdas
         style.configure("Treeview", font=("Roboto", 15), 
                         background="#2E2E2E", foreground="white",
                         fieldbackground="#2E2E2E", rowheight=28)
-        # Cambiar el estilo de los encabezados
+
         style.configure("Treeview.Heading", font=("Roboto", 16, "bold"),
                         background="#4F4F4F", foreground="#464646", relief="raised")
         
@@ -152,15 +148,14 @@ class GUI():
                     highlightcolor=[("selected", "#6B6B6B")],  
                     highlightthickness=[("selected", 1)])
 
-        # === Botón para seleccionar columnas ===
+        # == Botones columnas ==
         self.select_columns_button = ctk.CTkButton(self.root, text="Select Input Columns ", command=self.select_columns,
                                                     corner_radius=15, width=170, height=50,
                                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
                                                     text_color="white", font=("Roboto", 16, "bold"),
                                                     border_color="#707070", border_width=1)
         self.select_columns_button.place(x=20, y=20)
-        self.select_columns_button.configure(state="disabled")  # Deshabilitar hasta que se cargue un archivo
-        # === Botón para seleccionar la columna de salida ===
+        self.select_columns_button.configure(state="disabled") 
         self.select_output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
                                     corner_radius=15, width=170, height=50,
                                     fg_color="#5A6F7D", hover_color="#3C4F5A",
@@ -168,28 +163,24 @@ class GUI():
                                     border_color="#707070", border_width=1)
         self.select_output_button.place(x=20, y=80)
         self.select_output_button.configure(state="disabled")
-        # Etiqueta para instrucción
-        label = ctk.CTkLabel(root, text="Descripción del modelo (opcional):")
+
+        label = ctk.CTkLabel(root, text="Model description (Optional):")
         label.pack(pady=10)
 
         self.description_text = ttk.Entry(root,  width=40)
         self.description_text.pack(pady=10)
 
-        create_button = ctk.CTkButton(root, text="Guardar descripción", command=self.model_description)
+        create_button = ctk.CTkButton(root, text="Save description", command=self.model_description)
         create_button.pack(pady=20)
         
 
-        self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.crear_modelo,
+        self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.create_model,
                                                 corner_radius=15, width=170, height=50,
                                                 fg_color="#5A6F7D", hover_color="#3C4F5A",
                                                 text_color="white", font=("Roboto", 16, "bold"),
                                                 border_color="#707070", border_width=1)
         self.create_model_button.place(x=300, y=80)
         self.create_model_button.configure(state="disabled")
-        
-
-       
-
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -232,11 +223,11 @@ class GUI():
     def display_data(self, data):
         # Limpiar cualquier dato anterior en el Treeview
         self.data_table.delete(*self.data_table.get_children())
-        # Crear columnas dinámicamente según el archivo cargado
+        # Crear columnas según el archivo cargado
         self.data_table["columns"] = list(data.columns)
         for col in data.columns:
-            self.data_table.heading(col, text=col, anchor="center")  # Centrar los encabezados
-            self.data_table.column(col, anchor="center")  # Centrar el contenido de las columnas
+            self.data_table.heading(col, text=col, anchor="center")
+            self.data_table.column(col, anchor="center")
         # Insertar filas de datos
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
@@ -313,10 +304,10 @@ class GUI():
                 self.select_output_button.configure(state="normal")
 
         elif option == "Fill with constant":
-            # Habilita el campo de entrada para que el usuario ingrese el valor
+            # Habilita el campo de entrada para ingresar el valor
             self.constant_entry.place(x=60, y=203)
             self.constant_entry.configure(state="normal")
-            self.constant_entry.focus()  # Da el foco al campo de entrada para escribir directamente
+            self.constant_entry.focus()
 
     def hide_constant_entry(self, event=None):
         self.constant_entry.place_forget() 
@@ -326,15 +317,13 @@ class GUI():
         confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
         if confirm:
             try:
-                # Obtener el valor constante ingresado por el usuario
+                # Obtener el valor constante ingresado
                 constant_value = float(self.constant_entry.get())
-                # Aplicar el llenado con el valor constante
                 self.data_table_df.fillna(constant_value, inplace=True)
                 messagebox.showinfo("Filled with Constant", "Null values have been filled with the specified constant.")
                 self.display_data(self.data_table_df)
-                # Desactiva el campo de entrada después de aplicar
                 self.constant_entry.configure(state="disabled")
-                self.constant_entry.delete(0, 'end')  # Limpia el campo de entrada
+                self.constant_entry.delete(0, 'end')
                 self.constant_entry.place_forget() 
                 self.null_option_menu.configure(state="disabled")
                 self.select_columns_button.configure(state="normal")
@@ -346,20 +335,15 @@ class GUI():
         # Crear una nueva ventana para seleccionar las columnas
         self.column_window = Toplevel(self.root)
         self.column_window.title("Select Columns")
-
         self.column_window.configure(bg="black")
-
-        # Variables para almacenar los estados de los checkboxes
         self.column_vars = {}
 
-        # Crear checkboxes para cada columna
         for idx, col in enumerate(self.data_table["columns"]):
             var = IntVar()
             self.column_vars[col] = var
             checkbox = ctk.CTkCheckBox(self.column_window, text=col, variable=var, text_color="white",fg_color="black")
             checkbox.pack(anchor="w")
 
-        # Botón para confirmar la selección
         confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
         confirm_button.pack(pady=10)
 
@@ -419,7 +403,7 @@ class GUI():
         else:
             messagebox.showwarning("No Column Selected", "Please select an output column.")
 
-    def crear_modelo(self):
+    def create_model(self):
         input_cols = self.columns_selected 
         output_col = self.output_column
 
@@ -429,31 +413,30 @@ class GUI():
                 y = self.data_table_df[output_col].values  
                 
                 if not self.description_text.get():
-                    messagebox.showinfo("Nota", "No se añadió ninguna descripción.")
+                    messagebox.showinfo("Reminder", "No description added.")
                 if np.issubdtype(X.dtype, np.number) and np.issubdtype(y.dtype, np.number):
                     model = LinearRegression()
                     model.fit(X, y)
                     if X.shape[1] == 1:  # Si hay solo una columna de entrada (regresión lineal simple)
-                        self.graficar_datos(X, y, model)
+                        self.graphic_2D(X, y, model)
                     elif X.shape[1] == 2:  # Si hay dos columnas de entrada, podemos hacer un gráfico 3D
-                        self.graficar_datos_3D(X, y, model)
+                        self.graphic_3D(X, y, model)
                     else:
-                        messagebox.showinfo("Modelo creado", "Modelo creado exitosamente, pero no se puede graficar con más de dos entradas.")
+                        messagebox.showinfo("Model created", "Model created successfully, but can't plot if more than 2 inputs were selected.")
 
                 else:
-                    messagebox.showwarning("Datos no numéricos", "Las columnas seleccionadas deben ser numéricas.")
+                    messagebox.showwarning("No Numeric Data!", "Columns selected must be numeric.")
             except Exception as e:
-                messagebox.showerror("Error al crear el modelo", f"Se produjo un error al crear el modelo: {e}")
+                messagebox.showerror("An Error has occurred", f"An Error has occurred while plotting model: {e}")
         else:
-            messagebox.showwarning("Seleccionar columnas", "Por favor, selecciona las columnas de entrada y salida.")
+            messagebox.showwarning("No columns selected", "Please, select Input and Output columns.")
     
-    def guardar_modelo(self):
+    def save_model(self):
         # Abrir un diálogo para seleccionar el archivo de modelo
         file_path = filedialog.askopenfilename(filetypes=[("PKL files", "*.pkl"), ("Joblib files", "*.joblib")])
         
         if file_path:
             try:
-                # Cargar el modelo según la extensión del archivo
                 if file_path.endswith(".pkl"):
                     with open(file_path, 'rb') as file:
                         model_data = pickle.load(file)
@@ -462,17 +445,14 @@ class GUI():
                 else:
                     raise ValueError("Unsupported file format.")
                 
-                # Mostrar un mensaje con la información cargada
                 messagebox.showinfo("Model Loaded", f"Model loaded successfully from {file_path}.")
-                
-                # Aquí puedes acceder a los datos cargados
+
                 formula = model_data.get("formula")
                 input_columns = model_data.get("input_columns")
                 output_column = model_data.get("output_column")
                 error_adjustment = model_data.get("error_adjustment")
                 description = model_data.get("description")
-                
-                # Puedes hacer lo que necesites con estos datos
+
                 print(f"Formula: {formula}")
                 print(f"Input Columns: {input_columns}")
                 print(f"Output Column: {output_column}")
@@ -482,30 +462,30 @@ class GUI():
             except Exception as e:
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
     
-    def graficar_datos(self, X, y, model):
+    def graphic_2D(self, X, y, model):
         plt.figure(figsize=(8, 6))
         
-        plt.scatter(X, y, color='blue', label='Datos')
+        plt.scatter(X, y, color='blue', label='Data')
         
-        plt.plot(X, model.predict(X), color='red', label='Línea de Regresión')
+        plt.plot(X, model.predict(X), color='red', label='Regression Line')
         
-        plt.xlabel('Entrada')
-        plt.ylabel('Salida')
-        plt.title('Regresión Lineal')
+        plt.xlabel('Input')
+        plt.ylabel('Output')
+        plt.title('Linear regression')
         plt.legend()
         
         plt.show()
 
-    def graficar_datos_3D(self, X, y, model):
+    def graphic_3D(self, X, y, model):
         try:
             fig = plt.figure(figsize=(10, 7))
             ax = fig.add_subplot(111, projection='3d')
 
-            ax.scatter(X[:, 0], X[:, 1], y, color='b', label='Datos reales')
+            ax.scatter(X[:, 0], X[:, 1], y, color='b', label='Data')
 
             y_pred = model.predict(X)
             
-            ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='r', alpha=0.5, label='Modelo de regresión')
+            ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='r', alpha=0.5, label='Regression Model')
 
             ax.set_xlabel(self.columns_selected[0])
             ax.set_ylabel(self.columns_selected[1]) 
@@ -522,19 +502,17 @@ class GUI():
             plt.show()
 
         except Exception as e:
-            messagebox.showerror("Error", f"Se produjo un error al graficar los datos 3D: {str(e)}")
+            messagebox.showerror("Error", f"An error occurred while plotting 3D data: {str(e)}")
     
     def model_description(self):
-        # Obtener el texto de la descripción
         self.description = self.description_text.get()
-        
-        # Validar si el usuario dejó la descripción en blanco
+
         if not self.description:
-            messagebox.showinfo("Nota", "No se añadió ninguna descripción.")
+            messagebox.showinfo("Reminder", "No description added.")
         else:
-            messagebox.showinfo("Descripción añadida", "La descripción se ha guardado correctamente.")
+            messagebox.showinfo("Reminder", "Description added successfully.")
 
 if __name__ == "__main__":
-    root = ctk.CTk()  # Ventana de customtkinter
+    root = ctk.CTk()
     app = GUI(root)
     root.mainloop()
