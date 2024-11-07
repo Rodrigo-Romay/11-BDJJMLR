@@ -1,12 +1,13 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox, Toplevel, IntVar
+from tkinter import filedialog, messagebox, Toplevel, IntVar, simpledialog
 from tkinter import ttk
 from Modulo import DataImport
 from sklearn.linear_model import LinearRegression
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
-
+import pickle
+import joblib
 class GUI():
     def __init__(self, root):
         self.root = root
@@ -15,6 +16,7 @@ class GUI():
         self.columns_selected = []
         self.output_column = None 
         self._option_selected = False
+        self.description = None
 
         # === Diseño ===
         ctk.set_appearance_mode("dark")
@@ -44,6 +46,12 @@ class GUI():
                                     text_color="white", font=("Roboto", 16, "bold"),
                                     border_color="#707070", border_width=1)
         load_button.pack(padx=10, pady=10)
+        
+        # === Botón para guardar el modelo ===
+        save_button = ctk.CTkButton(self.root, text="Save Model", command=self.guardar_modelo, corner_radius=15, width=170, height=50,
+                                    fg_color="#5A6F7D", hover_color="#3C4F5A", text_color="white", font=("Roboto", 16, "bold"),
+                                    border_color="#707070", border_width=1)
+        save_button.place(x=300, y=150)  # Posición del botón de guardado
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
@@ -438,7 +446,42 @@ class GUI():
                 messagebox.showerror("Error al crear el modelo", f"Se produjo un error al crear el modelo: {e}")
         else:
             messagebox.showwarning("Seleccionar columnas", "Por favor, selecciona las columnas de entrada y salida.")
+    
+    def guardar_modelo(self):
+        # Abrir un diálogo para seleccionar el archivo de modelo
+        file_path = filedialog.askopenfilename(filetypes=[("PKL files", "*.pkl"), ("Joblib files", "*.joblib")])
         
+        if file_path:
+            try:
+                # Cargar el modelo según la extensión del archivo
+                if file_path.endswith(".pkl"):
+                    with open(file_path, 'rb') as file:
+                        model_data = pickle.load(file)
+                elif file_path.endswith(".joblib"):
+                    model_data = joblib.load(file_path)
+                else:
+                    raise ValueError("Unsupported file format.")
+                
+                # Mostrar un mensaje con la información cargada
+                messagebox.showinfo("Model Loaded", f"Model loaded successfully from {file_path}.")
+                
+                # Aquí puedes acceder a los datos cargados
+                formula = model_data.get("formula")
+                input_columns = model_data.get("input_columns")
+                output_column = model_data.get("output_column")
+                error_adjustment = model_data.get("error_adjustment")
+                description = model_data.get("description")
+                
+                # Puedes hacer lo que necesites con estos datos
+                print(f"Formula: {formula}")
+                print(f"Input Columns: {input_columns}")
+                print(f"Output Column: {output_column}")
+                print(f"Error Adjustment: {error_adjustment}")
+                print(f"Description: {description}")
+
+            except Exception as e:
+                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+    
     def graficar_datos(self, X, y, model):
         plt.figure(figsize=(8, 6))
         
@@ -483,10 +526,10 @@ class GUI():
     
     def model_description(self):
         # Obtener el texto de la descripción
-        description = self.description_text.get()
+        self.description = self.description_text.get()
         
         # Validar si el usuario dejó la descripción en blanco
-        if not description:
+        if not self.description:
             messagebox.showinfo("Nota", "No se añadió ninguna descripción.")
         else:
             messagebox.showinfo("Descripción añadida", "La descripción se ha guardado correctamente.")
