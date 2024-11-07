@@ -510,12 +510,27 @@ class GUI():
             messagebox.showerror("Error", f"An error occurred while plotting 3D data: {str(e)}")
     
     def model_description(self):
+    # Obtener la descripción del área de texto
         self.description = self.description_text.get()
 
+    # Validar si la descripción está en blanco
         if not self.description:
             messagebox.showinfo("Reminder", "No description added.")
         else:
-            messagebox.showinfo("Reminder", "Description added successfully.")
+            messagebox.showinfo("Success", "Description added successfully and ready to be saved.")
+
+    # Almacenar la descripción en un atributo de la clase
+        self.model_data = {
+            "description": self.description
+
+        # Se pueden añadir más detalles del modelo aquí si es necesario
+    } 
+        print(self.model_data)
+
+    # Preparar la descripción y los detalles del modelo para la persistencia
+    # Aquí puedes agregar cualquier lógica adicional necesaria para asegurarte
+    # de que la descripción esté lista para guardarse junto con el modelo
+
 
 if __name__ == "__main__":
     root = ctk.CTk()
