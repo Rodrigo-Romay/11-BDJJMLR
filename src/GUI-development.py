@@ -3,6 +3,7 @@ from tkinter import filedialog, messagebox, Toplevel, IntVar, simpledialog
 from tkinter import ttk
 from Modulo import DataImport
 from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error
 import numpy as np
 import matplotlib.pyplot as plt
 import pickle
@@ -469,41 +470,86 @@ class GUI():
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
     
     def graphic_2D(self, X, y, model):
-        plt.figure(figsize=(8, 6))
+        # Crear la figura y los ejes
+        fig, ax = plt.subplots(figsize=(8, 6))
         
-        plt.scatter(X, y, color='blue', label='Data')
+        # Graficar los puntos de datos y la línea de regresión
+        ax.scatter(X, y, color='blue', label='Data')
+        ax.plot(X, model.predict(X), color='red', label='Regression Line')
         
-        plt.plot(X, model.predict(X), color='red', label='Regression Line')
+        # Agregar etiquetas y título
+        ax.set_xlabel(f"Input: {self.columns_selected[0]}", labelpad=15, color='black', fontsize=18)
+        ax.set_ylabel(f"Output: {self.output_column}", labelpad=15, color='black', fontsize=18)
+        ax.set_title('Linear Regression')
+
+        # Generar la fórmula de la regresión lineal
+        coef = model.coef_[0]
+        intercept = model.intercept_
+        formula_str = f"{self.output_column} = {coef:.2f} * {self.columns_selected[0]} + {intercept:.2f}"
+
+        #Calcular R² y ECM
+        y_pred = model.predict(X)
+        r2_score = model.score(X, y)  # R²
+        ecm = np.mean((y - y_pred) ** 2)  # ECM
+        r2_str = f"R² = {r2_score:.4f}"
+        mse_str = f"ECM = {ecm:.4f}"
+
+        # Agregar los textos de R² y ECM fuera de la gráfica
+        fig.text(0.90, 0.97, r2_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
+        fig.text(0.90, 0.94, mse_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
         
-        plt.xlabel('Input')
-        plt.ylabel('Output')
-        plt.title('Linear regression')
-        plt.legend()
+
+        plt.suptitle(formula_str, fontsize=12, color='black', ha='center', bbox=dict(facecolor='white', alpha=0.5))
         
+        # Mostrar leyenda y gráfica
+        ax.legend()
         plt.show()
 
     def graphic_3D(self, X, y, model):
         try:
+            # Crear la figura y el eje 3D
             fig = plt.figure(figsize=(10, 7))
             ax = fig.add_subplot(111, projection='3d')
 
+            # Graficar los puntos de datos y la superficie de regresión
             ax.scatter(X[:, 0], X[:, 1], y, color='b', label='Data')
-
             y_pred = model.predict(X)
-            
-            ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='r', alpha=0.5, label='Regression Model')
+            ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='red', alpha=0.5, label='Regression Model')
 
-            ax.set_xlabel(self.columns_selected[0])
-            ax.set_ylabel(self.columns_selected[1]) 
-            ax.set_zlabel(self.output_column)
-            
-            ax.view_init(elev=30, azim=45)  
+            # Agregar etiquetas a los ejes
+            ax.set_xlabel(self.columns_selected[0], labelpad=10, color='black')
+            ax.set_ylabel(self.columns_selected[1], labelpad=10, color='black')
+            ax.set_zlabel(self.output_column, labelpad=10, color='black')
 
-            ax.set_facecolor('black')
-            fig.patch.set_facecolor('black')
+            # Generar la fórmula de la regresión lineal
+            formula_str = f"{self.output_column} = {model.coef_[0]:.2f} * {self.columns_selected[0]} + {model.coef_[1]:.2f} * {self.columns_selected[1]} + {model.intercept_:.2f}"
 
-            ax.grid(True, color='gray', linestyle='-', linewidth=0.5)
-            ax.tick_params(axis='both', direction='in', length=6, width=1, colors='white')
+            # Calcular el coeficiente de determinación (R²)
+            r2_score = model.score(X, y)
+            r2_str = f"R² = {r2_score:.4f}"
+
+            # Calcular el Error Cuadrático Medio (ECM)
+            ecm = mean_squared_error(y, y_pred)
+            ecm_str = f"ECM = {ecm:.4f}"
+
+            # Colocar la fórmula como título en la parte superior de la ventana
+            plt.suptitle(formula_str, fontsize=12, color='black', ha='center', bbox=dict(facecolor='white', alpha=0.7))
+
+            # Mostrar el R² en la parte superior derecha
+            fig.text(0.90, 0.97, r2_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
+            # Colocar el ECM en la esquina superior derecha
+            fig.text(0.90, 0.94, ecm_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
+
+            # Configurar el color de fondo de la figura y el gráfico 3D
+            fig.patch.set_facecolor('white')         # Fondo blanco para la figura
+            ax.set_facecolor('whitesmoke')           # Fondo gris claro para el área 3D
+
+            # Configurar estilo de la cuadrícula y personalización de los ejes
+            ax.grid(True, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
+
+            # Ajustar vista y color de los ticks
+            ax.view_init(elev=30, azim=45)
+            ax.tick_params(axis='both', colors='black', direction='in', length=5, width=1)
 
             plt.show()
 
