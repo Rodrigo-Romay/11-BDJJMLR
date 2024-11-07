@@ -160,6 +160,16 @@ class GUI():
                                     border_color="#707070", border_width=1)
         self.select_output_button.place(x=20, y=80)
         self.select_output_button.configure(state="disabled")
+        # Etiqueta para instrucción
+        label = ctk.CTkLabel(root, text="Descripción del modelo (opcional):")
+        label.pack(pady=10)
+
+        self.description_text = ttk.Entry(root,  width=40)
+        self.description_text.pack(pady=10)
+
+        create_button = ctk.CTkButton(root, text="Guardar descripción", command=self.model_description)
+        create_button.pack(pady=20)
+        
 
         self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.crear_modelo,
                                                 corner_radius=15, width=170, height=50,
@@ -169,6 +179,9 @@ class GUI():
         self.create_model_button.place(x=300, y=80)
         self.create_model_button.configure(state="disabled")
         
+
+       
+
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -407,10 +420,11 @@ class GUI():
                 X = self.data_table_df[input_cols].values
                 y = self.data_table_df[output_col].values  
                 
+                if not self.description_text.get():
+                    messagebox.showinfo("Nota", "No se añadió ninguna descripción.")
                 if np.issubdtype(X.dtype, np.number) and np.issubdtype(y.dtype, np.number):
                     model = LinearRegression()
                     model.fit(X, y)
-
                     if X.shape[1] == 1:  # Si hay solo una columna de entrada (regresión lineal simple)
                         self.graficar_datos(X, y, model)
                     elif X.shape[1] == 2:  # Si hay dos columnas de entrada, podemos hacer un gráfico 3D
@@ -424,7 +438,7 @@ class GUI():
                 messagebox.showerror("Error al crear el modelo", f"Se produjo un error al crear el modelo: {e}")
         else:
             messagebox.showwarning("Seleccionar columnas", "Por favor, selecciona las columnas de entrada y salida.")
-
+        
     def graficar_datos(self, X, y, model):
         plt.figure(figsize=(8, 6))
         
@@ -466,6 +480,16 @@ class GUI():
 
         except Exception as e:
             messagebox.showerror("Error", f"Se produjo un error al graficar los datos 3D: {str(e)}")
+    
+    def model_description(self):
+        # Obtener el texto de la descripción
+        description = self.description_text.get()
+        
+        # Validar si el usuario dejó la descripción en blanco
+        if not description:
+            messagebox.showinfo("Nota", "No se añadió ninguna descripción.")
+        else:
+            messagebox.showinfo("Descripción añadida", "La descripción se ha guardado correctamente.")
 
 if __name__ == "__main__":
     root = ctk.CTk()  # Ventana de customtkinter
