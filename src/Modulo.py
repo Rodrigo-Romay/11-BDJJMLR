@@ -84,7 +84,3 @@ class DataImport():
 if __name__ == "__main__":
     file = input("Introduce the file's route: ").replace("\\\\", "\\")
     DataImport(file).read_file()
-
-            
-            
-
