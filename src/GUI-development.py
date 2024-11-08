@@ -16,9 +16,8 @@ class GUI():
         self.columns_selected = []
         self.output_column = None 
         self._option_selected = False
-        self.description = None
-        self.description_saved = None
-        self.model_formula = None
+        self.description_saved = {}
+        self.model_formula = {}
         self.model_metrics = {}
 
         # === Diseño ===
@@ -421,8 +420,8 @@ class GUI():
                 y = self.data_table_df[output_col].values  
                 self.save_button.configure(state="normal")
                 
-                if not self.description_text.get():
-                    messagebox.showinfo("Reminder", "No description added.")
+                if not self.description_saved:
+                    messagebox.showinfo("Reminder", "No description saved.")
                 if np.issubdtype(X.dtype, np.number) and np.issubdtype(y.dtype, np.number):
                     model = LinearRegression()
                     model.fit(X, y)
@@ -451,7 +450,7 @@ class GUI():
                     "output_column": self.output_column,
                     "r2_score": self.model_metrics.get("r2"),
                     "ecm": self.model_metrics.get("ecm"),
-                    "description": self.description_saved.get("description")
+                    "description" : self.description_saved
                     }
                 if file_path.endswith(".pkl"):
                     with open(file_path, 'wb') as file:
@@ -461,7 +460,7 @@ class GUI():
                 else:
                     raise ValueError("Unsupported file format.")
                 
-                messagebox.showinfo("Model Loaded", f"Model loaded successfully from {file_path}.")
+                messagebox.showinfo("Model saved", f"Model saved successfully from {file_path}.")
 
             except Exception as e:
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
@@ -489,7 +488,7 @@ class GUI():
         r2_score = model.score(X, y)  # R²
         ecm = np.mean((y - y_pred) ** 2)  # ECM
 
-        self.model_formula = formula_str
+        self.model_formula = {"formula":formula_str}
         self.model_metrics = {"r2": r2_score, "ecm":ecm}
 
         r2_str = f"R² = {r2_score:.4f}"
@@ -533,7 +532,7 @@ class GUI():
             ecm = mean_squared_error(y, y_pred)
             ecm_str = f"ECM = {ecm:.4f}"
 
-            self.model_formula = formula_str
+            self.model_formula = {"formula":formula_str}
             self.model_metrics = {"r2":r2_score, "ecm": ecm}
 
             # Colocar la fórmula como título en la parte superior de la ventana
@@ -562,25 +561,19 @@ class GUI():
     
     def model_description(self):
     # Obtener la descripción del área de texto
-        self.description = self.description_text.get()
+        description = self.description_text.get()
 
     # Validar si la descripción está en blanco
-        if not self.description:
-            messagebox.showinfo("Reminder", "No description added.")
+        if not description:
+            messagebox.showerror("Error","Description is blank.")
         else:
-            messagebox.showinfo("Success", "Description added successfully and ready to be saved.")
+            messagebox.showinfo("Success", "Description saved successfully.")
 
-    # Almacenar la descripción en un atributo de la clase
-        self.description_saved = {
-            "description": self.description
+        self.description_saved =  {"description":description}
 
-        # Se pueden añadir más detalles del modelo aquí si es necesario
-    } 
-        print(self.model_data)
+    
+        print(self.description_saved)
 
-    # Preparar la descripción y los detalles del modelo para la persistencia
-    # Aquí puedes agregar cualquier lógica adicional necesaria para asegurarte
-    # de que la descripción esté lista para guardarse junto con el modelo
 
 
 if __name__ == "__main__":
