@@ -463,7 +463,7 @@ class GUI():
                 messagebox.showinfo("Model saved", f"Model saved successfully from {file_path}.")
 
             except Exception as e:
-                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+                messagebox.showerror("Save Error", f"An error occurred while saving the model: {str(e)}")
     
     def graphic_2D(self, X, y, model):
         # Crear la figura y los ejes
@@ -572,7 +572,6 @@ class GUI():
         self.description_saved =  {"description":description}
 
     
-        print(self.description_saved)
 
 
 
