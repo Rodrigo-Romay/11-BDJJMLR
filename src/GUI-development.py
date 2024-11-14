@@ -32,26 +32,43 @@ class GUI():
 
         self.create_widgets()
 
+    def create_button(self, master, text, command, width=170, height=50, x=0, y=0):
+        button = ctk.CTkButton(
+            master,
+            text=text,
+            command=command,
+            corner_radius=15,
+            width=width,
+            height=height,
+            fg_color="#5A6F7D",
+            hover_color="#3C4F5A",
+            text_color="white",
+            font=("Roboto", 16, "bold"),
+            border_color="#707070",
+            border_width=1)
+        button.place(x=x, y=y)
+        return button
+    
+    def create_label(self, master, text, font, text_color="#A0A0A0" ):
+        label = ctk.CTkLabel(
+            master,
+            text=text,
+            font=font,
+            text_color=text_color
+        )
+        return label
+
     def create_widgets(self):
         # === Barra de título superior ===
-        title_label = ctk.CTkLabel(self.root, 
-                            text="Trendify", 
-                            font=("Pacifico", 50, "bold"), 
-                            text_color="#d1d9e6")
-                            
+        title_label = self.create_label(self.root, "Trendify", ("Pacifico", 50, "bold"), "#d1d9e6")            
         title_label.pack(pady=20) 
 
         # === Botón para cargar archivo ===
-        load_button = ctk.CTkButton(self.root, text="Load File", command=self.load_file,
-                                    corner_radius=15, width=170, height=50,
-                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                    text_color="white", font=("Roboto", 16, "bold"),
-                                    border_color="#707070", border_width=1)
+        load_button = self.create_button(self.root, "Load File", self.load_file, 170, 50)
         load_button.pack(padx=10, pady=10)        
 
         # === Etiqueta para mostrar la ruta del archivo ===
-        self.file_label = ctk.CTkLabel(self.root, text="File's Route:",
-                                        font=("Roboto", 16), text_color="#A0A0A0")
+        self.file_label = self.create_label(self.root, "File's Route:", ("Roboto", 16), "#A0A0A0")
         self.file_label.pack(pady=10)
 
         # === Frame externo ===
@@ -74,6 +91,10 @@ class GUI():
         self.data_table = ttk.Treeview(self.table_frame, yscrollcommand=self.v_scroll.set, 
                                         xscrollcommand=self.h_scroll.set, show="headings")
         self.data_table.pack(expand=True, fill="both")
+        
+        self.h_scroll.configure(command=self.data_table.xview)
+        self.v_scroll.configure(command=self.data_table.yview)
+        
 
         # === Variable para manejar las opciones de nulos ===
         self.null_handling_option = ctk.StringVar(value="Select an option")
@@ -101,12 +122,7 @@ class GUI():
         self.constant_entry.place_forget()
 
         # === Botón para preprocesar datos ===
-        self.preprocess_button = ctk.CTkButton(self.root, text="Preprocess Data", command=self.preprocess_data,
-                                                corner_radius=15, width=170, height=100,
-                                                fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                                text_color="white", font=("Roboto", 16, "bold"),
-                                                border_color="#707070", border_width=1, anchor="n")
-        self.preprocess_button.place(x=20, y=140)
+        self.preprocess_button = self.create_button(self.root, "Preprocess Data", self.preprocess_data, 170, 100, 20, 140)
         self.preprocess_button.configure(state="disabled")
         self.preprocess_button.lower()
 
@@ -118,17 +134,12 @@ class GUI():
         self.labels_frame.pack(pady=5, fill="x")
 
         # === Etiqueta para mostrar columnas de entrada seleccionadas ===
-        self.input_columns_label = ctk.CTkLabel(self.labels_frame, text="Input Columns: None",
-                                                font=("Roboto", 16), text_color="#A0A0A0")
+        self.input_columns_label = self.create_label(self.labels_frame, "Input Columns: None", ("Roboto", 16), "#A0A0A0")
         self.input_columns_label.pack(side="top", padx=(10, 0))
 
         # === Etiqueta para mostrar la columna de salida seleccionada ===
-        self.output_column_label = ctk.CTkLabel(self.labels_frame, text="Output Column: None",
-                                                font=("Roboto", 16), text_color="#A0A0A0")
+        self.output_column_label = self.create_label(self.labels_frame, "Output Column: None", ("Roboto", 16), "#A0A0A0")
         self.output_column_label.pack(side="bottom", padx=(10, 0))
-
-        self.v_scroll.configure(command=self.data_table.yview)
-        self.h_scroll.configure(command=self.data_table.xview)
 
         # === Cambios para hacer que la tabla se vea mejor ===
         style = ttk.Style()
@@ -146,22 +157,13 @@ class GUI():
                     highlightthickness=[("selected", 1)])
 
         # == Botones columnas ==
-        self.select_columns_button = ctk.CTkButton(self.root, text="Select Input Columns ", command=self.select_columns,
-                                                    corner_radius=15, width=170, height=50,
-                                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                                    text_color="white", font=("Roboto", 16, "bold"),
-                                                    border_color="#707070", border_width=1)
-        self.select_columns_button.place(x=20, y=20)
+        self.select_columns_button = self.create_button(self.root, "Select Input Columns ", self.select_columns, 170, 50, 20, 20)
         self.select_columns_button.configure(state="disabled") 
-        self.select_output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column,
-                                    corner_radius=15, width=170, height=50,
-                                    fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                    text_color="white", font=("Roboto", 16, "bold"),
-                                    border_color="#707070", border_width=1)
-        self.select_output_button.place(x=20, y=80)
+
+        self.select_output_button = self.create_button(self.root, "Select Output Column", self.select_output_column, 170, 50, 20, 80)
         self.select_output_button.configure(state="disabled")
 
-        self.label_description = ctk.CTkLabel(root, text="Model description (Optional):")
+        self.label_description = self.create_label(self.root, "Model description (Optional):", ("Roboto", 16), "#A0A0A0")
         self.label_description.pack(pady=10)
 
         self.description_text = ttk.Entry(root,  width=40)
@@ -171,23 +173,12 @@ class GUI():
         self.save_description.pack(pady=20)
         
 
-        self.create_model_button = ctk.CTkButton(self.root, text="Create Model", command=self.create_model,
-                                                corner_radius=15, width=170, height=50,
-                                                fg_color="#5A6F7D", hover_color="#3C4F5A",
-                                                text_color="white", font=("Roboto", 16, "bold"),
-                                                border_color="#707070", border_width=1)
-        self.create_model_button.place(x=300, y=80)
+        self.create_model_button = self.create_button(self.root, "Create Model", self.create_model, 170, 50, 300, 80)
         self.create_model_button.configure(state="disabled")
 
         # === Botón para guardar el modelo ===
-        self.save_button = ctk.CTkButton(self.root, text="Save Model", command=self.save_model, corner_radius=15, width=170, height=50,
-                                    fg_color="#5A6F7D", hover_color="#3C4F5A", text_color="white", font=("Roboto", 16, "bold"),
-                                    border_color="#707070", border_width=1)
-        self.save_button.place(x=300, y=150)
+        self.save_button = self.create_button(self.root, "Save Model", self.save_model, 170, 50, 300, 150)
         self.save_button.configure(state="disabled")
-
-
-
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
@@ -238,7 +229,7 @@ class GUI():
         # Insertar filas de datos
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
-        # Ajusta el tamaño de las columnas según el tamaño de la ventana
+        # Ajustar el tamaño de las columnas según el tamaño de la ventana
         self.center_columns_in_window()
 
     def center_columns_in_window(self, event=None):
@@ -473,17 +464,15 @@ class GUI():
         ax.scatter(X, y, color='blue', label='Data')
         ax.plot(X, model.predict(X), color='red', label='Regression Line')
         
-        # Agregar etiquetas y título
         ax.set_xlabel(f"Input: {self.columns_selected[0]}", labelpad=15, color='black', fontsize=18)
         ax.set_ylabel(f"Output: {self.output_column}", labelpad=15, color='black', fontsize=18)
         ax.set_title('Linear Regression')
 
-        # Generar la fórmula de la regresión lineal
+        # Fórmula de la regresión lineal
         coef = model.coef_[0]
         intercept = model.intercept_
         formula_str = f"{self.output_column} = {coef:.2f} * {self.columns_selected[0]} + {intercept:.2f}"
 
-        #Calcular R² y ECM
         y_pred = model.predict(X)
         r2_score = model.score(X, y)  # R²
         ecm = np.mean((y - y_pred) ** 2)  # ECM
@@ -494,7 +483,7 @@ class GUI():
         r2_str = f"R² = {r2_score:.4f}"
         mse_str = f"ECM = {ecm:.4f}"
 
-        # Agregar los textos de R² y ECM fuera de la gráfica
+        # Agregar los textos de R² y ECM
         fig.text(0.90, 0.97, r2_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
         fig.text(0.90, 0.94, mse_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
         
@@ -516,12 +505,11 @@ class GUI():
             y_pred = model.predict(X)
             ax.plot_trisurf(X[:, 0], X[:, 1], y_pred, color='red', alpha=0.5, label='Regression Model')
 
-            # Agregar etiquetas a los ejes
             ax.set_xlabel(self.columns_selected[0], labelpad=10, color='black')
             ax.set_ylabel(self.columns_selected[1], labelpad=10, color='black')
             ax.set_zlabel(self.output_column, labelpad=10, color='black')
 
-            # Generar la fórmula de la regresión lineal
+            # Fórmula de la regresión lineal
             formula_str = f"{self.output_column} = {model.coef_[0]:.2f} * {self.columns_selected[0]} + {model.coef_[1]:.2f} * {self.columns_selected[1]} + {model.intercept_:.2f}"
 
             # Calcular el coeficiente de determinación (R²)
@@ -538,19 +526,15 @@ class GUI():
             # Colocar la fórmula como título en la parte superior de la ventana
             plt.suptitle(formula_str, fontsize=12, color='black', ha='center', bbox=dict(facecolor='white', alpha=0.7))
 
-            # Mostrar el R² en la parte superior derecha
             fig.text(0.90, 0.97, r2_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
-            # Colocar el ECM en la esquina superior derecha
             fig.text(0.90, 0.94, ecm_str, ha='left', fontsize=12, color='black', bbox=dict(facecolor='white', alpha=0.7))
 
             # Configurar el color de fondo de la figura y el gráfico 3D
-            fig.patch.set_facecolor('white')         # Fondo blanco para la figura
-            ax.set_facecolor('whitesmoke')           # Fondo gris claro para el área 3D
+            fig.patch.set_facecolor('white')
+            ax.set_facecolor('whitesmoke') 
 
-            # Configurar estilo de la cuadrícula y personalización de los ejes
             ax.grid(True, color='gray', linestyle='-', linewidth=0.5, alpha=0.5)
 
-            # Ajustar vista y color de los ticks
             ax.view_init(elev=30, azim=45)
             ax.tick_params(axis='both', colors='black', direction='in', length=5, width=1)
 
@@ -560,7 +544,7 @@ class GUI():
             messagebox.showerror("Error", f"An error occurred while plotting 3D data: {str(e)}")
     
     def model_description(self):
-    # Obtener la descripción del área de texto
+
         description = self.description_text.get()
 
     # Validar si la descripción está en blanco
@@ -570,10 +554,6 @@ class GUI():
             messagebox.showinfo("Success", "Description saved successfully.")
 
         self.description_saved =  {"description":description}
-
-    
-
-
 
 if __name__ == "__main__":
     root = ctk.CTk()
