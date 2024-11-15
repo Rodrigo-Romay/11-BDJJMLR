@@ -3,8 +3,6 @@ from tkinter import filedialog, messagebox, ttk, Toplevel, IntVar, StringVar
 import numpy as np
 from Model import Model
 from Modulo import DataImport
-from columns import Columns
-from preprocess import Preprocess
 
 class GUI:
     def __init__(self, root):
@@ -73,14 +71,14 @@ class GUI:
         self.constant_entry = ctk.CTkEntry(self.root, placeholder_text="Constant")
         self.constant_entry.place(relx=0.25, rely=0.7, anchor="center")
 
-        self.preprocess_button = ctk.CTkButton(self.root, text="Preprocess Data", command=self.preprocess)
+        self.preprocess_button = ctk.CTkButton(self.root, text="Preprocess Data", command=self.preprocess_data)
         self.preprocess_button.place(relx=0.25, rely=0.75, anchor="center")
 
     def create_column_selection_controls(self):
         self.select_columns_button = ctk.CTkButton(self.root, text="Select Input Columns", command=self.select_columns)
         self.select_columns_button.place(relx=0.75, rely=0.65, anchor="center")
 
-        self.select_output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.output_columns)
+        self.select_output_button = ctk.CTkButton(self.root, text="Select Output Column", command=self.select_output_column)
         self.select_output_button.place(relx=0.75, rely=0.7, anchor="center")
 
         self.labels_frame = ctk.CTkFrame(self.root)
@@ -164,31 +162,109 @@ class GUI:
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
 
-    
+    def preprocess_data(self):
+        if self.data_table_df is not None:
+            null_counts = self.data_table_df.isnull().sum()
+            self.null_counts_dict = null_counts[null_counts > 0].to_dict()
+            
+            if self.null_counts_dict:
+                self.show_null_values_info()
+                selected_option = self.null_handling_option.get()
+                
+                if selected_option == "Fill with mean":
+                    self.data_table_df.fillna(self.data_table_df.mean(), inplace=True)
+                    messagebox.showinfo("Success", "Null values filled with mean.")
+                    
+                elif selected_option == "Fill with median":
+                    self.data_table_df.fillna(self.data_table_df.median(), inplace=True)
+                    messagebox.showinfo("Success", "Null values filled with median.")
+                    
+                elif selected_option == "Fill with constant":
+                    try:
+                        constant_value = float(self.constant_entry.get())
+                        self.data_table_df.fillna(constant_value, inplace=True)
+                        messagebox.showinfo("Success", "Null values filled with constant.")
+                    except ValueError:
+                        messagebox.showerror("Error", "Please enter a valid constant value.")
+                
+                else:
+                    messagebox.showwarning("Warning", "Please select a valid null handling option.")
+                
+                self.display_data(self.data_table_df)
+            else:
+                messagebox.showinfo("No Null Values", "No null values detected in the dataset.")
+                self.preprocess_button.configure(state="disabled")
+        else:
+            messagebox.showwarning("No Data Loaded", "Please load data first.")
 
-    def preprocess(self):
-        self.preprocess_data = Preprocess(self.data_table_df,self.null_option_menu,self.display_data,self.constant_entry)
-        self.preprocess_data.preprocess_data()
-    def hide_constant_entry(self):
-        self.preprocess_data.hide_constant_entry()
-    def apply_constant_fill(self):
-        self.preprocess_data.apply_constant_fill()
+    def show_null_values_info(self):
+        null_counts_str = "\n".join(f"{col}: {count}" for col, count in self.null_counts_dict.items())
+        messagebox.showinfo("Null Value Info", f"Columns with null values:\n{null_counts_str}")
 
     def select_columns(self):
-        self.select_columns_input = Columns(self.root,self.data_table,self.input_columns_label,self.output_column_label)
-        self.select_columns_input.select_columns()
-     
+        self.column_window = Toplevel(self.root)
+        self.column_window.title("Select Columns")
+        self.column_window.configure(bg="black")
+        self.column_vars = {}
 
-    def output_columns(self):
-        self.select_output_column = Columns(self.root,self.data_table,self.input_columns_label,self.output_column_label)
-        self.select_output_column.select_output_column()
+        search_bar = ctk.CTkEntry(self.column_window, placeholder_text="Search columns...")
+        search_bar.pack(pady=5)
+        search_bar.bind("<KeyRelease>", self.filter_columns)
+
+        for col in self.data_table["columns"]:
+            var = IntVar()
+            self.column_vars[col] = var
+            checkbox = ctk.CTkCheckBox(self.column_window, text=col, variable=var, text_color="white", fg_color="black")
+            checkbox.pack(anchor="w")
+
+        confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
+        confirm_button.pack(pady=10)
+
+    def filter_columns(self, event):
+        search_term = event.widget.get().lower()
+        for col, var in self.column_vars.items():
+            var.get().pack_forget() if search_term not in col.lower() else var.get().pack(anchor="w")
+
+    def confirm_selection(self):
+        self.columns_selected = [col for col, var in self.column_vars.items() if var.get() == 1]
+        self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+        self.column_window.destroy()
+
+    def select_output_column(self):
+        self.output_column_window = Toplevel(self.root)
+        self.output_column_window.title("Select Output Column")
+        self.output_column_window.configure(bg="black")
+
+        self.output_column_var = ctk.StringVar(value="")
+
+        frame = ctk.CTkFrame(self.output_column_window, fg_color="black")
+        frame.pack(pady=10, padx=10, fill="both", expand=True)
+
+        for col in self.data_table["columns"]:
+            radiobutton = ctk.CTkRadioButton(
+                frame, 
+                text=col, 
+                variable=self.output_column_var, 
+                value=col,
+                text_color="white",
+                fg_color="blue",
+                hover_color="#444444"
+            )
+            radiobutton.pack(anchor="w", pady=2)  
+
+        confirm_button = ctk.CTkButton(
+            frame, 
+            text="Confirm Output Column", 
+            command=lambda: self.confirm_output_column()
+        )
+        confirm_button.pack(pady=10)
     
-    def get_selected_columns(self):
-        self.columns_selected =  self.select_columns_input.columns_selected
-        self.output_column =  self.select_output_column.output_column 
+    def confirm_output_column(self):
+        self.output_column = self.output_column_var.get()
+        self.output_column_label.configure(text=f"Output Column: {self.output_column if self.output_column else 'None'}")
+        self.output_column_window.destroy()
 
     def create_model(self):
-        self.get_selected_columns()
         self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df)
         messagebox.showinfo("Model Created", "The model has been succesfully created.")
     def save_model(self):
