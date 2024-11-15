@@ -180,6 +180,9 @@ class GUI():
         self.save_button = self.create_button(self.root, "Save Model", self.save_model, 170, 50, 300, 150)
         self.save_button.configure(state="disabled")
 
+        self.load_model_button = self.create_button(self.root, "Load Model", self.load_model, 170, 50, 300, 20)
+        self.load_model_button.configure(state="normal")
+
     def load_file(self):
         file_path = filedialog.askopenfilename(
             title="Select File",
@@ -456,6 +459,55 @@ class GUI():
             except Exception as e:
                 messagebox.showerror("Save Error", f"An error occurred while saving the model: {str(e)}")
     
+    def load_model(self):
+        file_path = filedialog.askopenfilename(
+            title="Select Model File",
+            filetypes=[("PFL files", "*.pkl"), ("Joblib files", "*.joblib")]
+        )
+        if file_path:
+            try:
+                if file_path.endswith(".pkl"):
+                    with open(file_path, 'rb') as file:
+                        model_data = pickle.load(file)
+                elif file_path.endswith(".joblib"):
+                    model_data = joblib.load(file_path)
+                else:
+                    raise ValueError("Unsupported file format.")
+
+                self.update_interface_with_model(model_data)
+                messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
+            except Exception as e:
+                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+    
+    def update_interface_with_model(self, model_data):
+        # Mostrar fórmula del modelo
+        formula = model_data.get("formula", {}).get("formula", "No formula found")
+        r2_score = model_data.get("r2_score", "No R² score found")
+        ecm = model_data.get("ecm", "No ECM found")
+        description = model_data.get("description", {}).get("description", "No description found")
+        
+        # Actualizar etiquetas con la información del modelo
+        self.input_columns_label.configure(text=f"Input Columns: {', '.join(model_data['input_columns'])}")
+        self.output_column_label.configure(text=f"Output Column: {model_data['output_column']}")
+        
+        # Mostrar fórmula y métricas
+        formula_label = self.create_label(self.root, f"Model Formula: {formula}", ("Roboto", 16), "#A0A0A0")
+        formula_label.place(relx=0.03, rely=0.833)
+
+        description_label = self.create_label(self.root, f"Description: {description}", ("Roboto", 16), "#A0A0A0")
+        description_label.place(relx=0.03, rely=0.866)
+
+        metrics_label = self.create_label(self.root, f"R² Score: {r2_score}, ECM: {ecm}", ("Roboto", 16), "#A0A0A0")
+        metrics_label.place(relx=0.03, rely=0.899)
+
+        # Ocultar secciones de carga de datos y selección de columnas
+        self.file_label.pack_forget()
+        self.preprocess_button.pack_forget()
+        self.select_columns_button.pack_forget()
+        self.select_output_button.pack_forget()
+        self.null_option_menu.place_forget()
+        self.constant_entry.place_forget()
+
     def graphic_2D(self, X, y, model):
         # Crear la figura y los ejes
         fig, ax = plt.subplots(figsize=(8, 6))
