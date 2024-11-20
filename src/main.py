@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from gui_module import GUI
+from Updated_Interface import GUI
 
 if __name__ == "__main__":
     root = ctk.CTk()
