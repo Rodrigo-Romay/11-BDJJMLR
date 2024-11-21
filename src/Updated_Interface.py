@@ -22,11 +22,10 @@ class GUI:
         ctk.set_default_color_theme("blue")
 
         # Layout configuration
-        self.root.grid_columnconfigure(0, weight=1)  # Sidebar
+        self.root.grid_columnconfigure(0, weight=1, minsize=300)  # Sidebar
         self.root.grid_columnconfigure(1, weight=3)  # Main content
         self.root.grid_rowconfigure(0, weight=1)  # Title
         self.root.grid_rowconfigure(1, weight=6)  # Main content
-        self.root.grid_rowconfigure(2, weight=1)  # Bottom section
 
         self.create_widgets()
 
@@ -281,7 +280,7 @@ class GUI:
             font=("Roboto", 12),
             text_color="#7f8c8d"
         )
-        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=(2, 5))  
+        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=7)  
 
         # === Etiquetas para columnas de entrada y salida ===
         self.input_columns_label = self.create_label(
@@ -290,7 +289,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=(0, 0)) 
+        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=7) 
 
         self.output_column_label = self.create_label(
             self.bottom_section,
@@ -298,7 +297,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(0, 0)) 
+        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(2, 2)) 
 
         # Configuración de las columnas y filas
         self.bottom_section.grid_columnconfigure(0, weight=1)
