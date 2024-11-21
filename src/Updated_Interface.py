@@ -174,46 +174,95 @@ class GUI:
         self.root.bind("<Escape>", self.hide_constant_entry)
 
     def create_main_section(self):
-        """Main section with the data table."""
+        """Main section with the data table and scrollbars."""
         self.main_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
         self.main_section.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
+        # Configure grid inside main section
         self.main_section.grid_rowconfigure(0, weight=1)
         self.main_section.grid_columnconfigure(0, weight=1)
 
+        # Frame for the table and scrollbars
         self.table_frame = ctk.CTkFrame(self.main_section, corner_radius=15, fg_color="white")
         self.table_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
-        self.data_table = ttk.Treeview(self.table_frame, show="headings")
+        # Scrollbars for the table
+        self.x_scrollbar = ttk.Scrollbar(self.table_frame, orient="horizontal", style="Custom.Horizontal.TScrollbar")
+        self.x_scrollbar.pack(side="bottom", fill="x")
+
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
+        self.y_scrollbar.pack(side="right", fill="y")
+
+        # Table setup with scrollbars
+        self.data_table = ttk.Treeview(
+            self.table_frame,
+            show="headings",
+            xscrollcommand=self.x_scrollbar.set,
+            yscrollcommand=self.y_scrollbar.set
+        )
         self.data_table.pack(fill="both", expand=True)
 
+        # Configuring scrollbars to work with the table
+        self.x_scrollbar.config(command=self.data_table.xview)
+        self.y_scrollbar.config(command=self.data_table.yview)
+
+        # Styling the table
         style = ttk.Style()
         style.configure("Treeview", font=("Roboto", 12), background="white", foreground="black", rowheight=25)
         style.configure("Treeview.Heading", font=("Roboto", 14, "bold"), background="#dfe6e9", foreground="black")
         style.map("Treeview",
-                    background=[("selected", "#b2bec3")],
-                    foreground=[("selected", "#ffffff")])
+                background=[("selected", "#b2bec3")],
+                foreground=[("selected", "#ffffff")])
+
+        # Styling the scrollbars
+        style.configure(
+            "Custom.Horizontal.TScrollbar",
+            gripcount=0,
+            background="#ecf0f1",
+            darkcolor="#bdc3c7",
+            lightcolor="#ecf0f1",
+            troughcolor="#ffffff",
+            bordercolor="#dfe6e9",
+            arrowcolor="#7f8c8d",
+            relief="flat"
+        )
+
+        style.configure(
+            "Custom.Vertical.TScrollbar",
+            gripcount=0,
+            background="#ecf0f1",
+            darkcolor="#bdc3c7",
+            lightcolor="#ecf0f1",
+            troughcolor="#ffffff",
+            bordercolor="#dfe6e9",
+            arrowcolor="#7f8c8d",
+            relief="flat"
+        )
+
 
     def create_bottom_section(self):
-        """Bottom section with description and notes."""
+        """Bottom section with description, file info, and column selections."""
         self.bottom_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
         self.bottom_section.grid(row=2, column=1, sticky="nsew", padx=10, pady=10)
 
+        # === Etiqueta para descripción del modelo ===
         self.description_label = self.create_label(
             self.bottom_section,
             text="Model Description:",
             font=("Roboto", 14),
             text_color="black"
         )
-        self.description_label.pack(anchor="w", padx=10, pady=5)
+        self.description_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5, 2)) 
 
+        # === Entrada de descripción ===
         self.description_entry = ctk.CTkEntry(
             self.bottom_section,
             placeholder_text="Enter description here...",
             width=600
         )
-        self.description_entry.pack(anchor="w", padx=10, pady=5)
+        self.description_entry.grid(row=1, column=0, sticky="w", padx=10, pady=(2, 5)) 
 
+        # === Botón para guardar descripción ===
         self.save_description_button = ctk.CTkButton(
             self.bottom_section,
             text="Save Description",
@@ -223,16 +272,39 @@ class GUI:
             hover_color="#27ae60",
             text_color="white"
         )
-        self.save_description_button.pack(anchor="w", padx=10, pady=10)
+        self.save_description_button.grid(row=2, column=0, sticky="w", padx=10, pady=(2, 5)) 
 
-        # Label for file path
+        # === Etiqueta para mostrar la ruta del archivo ===
         self.file_path_label = ctk.CTkLabel(
             self.bottom_section,
             text="No file loaded",
             font=("Roboto", 12),
             text_color="#7f8c8d"
         )
-        self.file_path_label.pack(anchor="w", padx=10, pady=5)
+        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=(2, 5))  
+
+        # === Etiquetas para columnas de entrada y salida ===
+        self.input_columns_label = self.create_label(
+            self.bottom_section,
+            "Input Columns: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=(0, 0)) 
+
+        self.output_column_label = self.create_label(
+            self.bottom_section,
+            "Output Column: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(0, 0)) 
+
+        # Configuración de las columnas y filas
+        self.bottom_section.grid_columnconfigure(0, weight=1)
+        self.bottom_section.grid_columnconfigure(1, weight=1)
+        self.bottom_section.grid_rowconfigure(5, weight=0)  
+
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
