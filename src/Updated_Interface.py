@@ -47,8 +47,7 @@ class GUI:
 
     def create_title_bar(self):
         """Top title bar with the app name."""
-        self.title_bar = ctk.CTkFrame(
-            self.root, fg_color="#2c3e50", height=50, corner_radius=0)
+        self.title_bar = ctk.CTkFrame(self.root, fg_color="#2c3e50", height=50, corner_radius=0)
         self.title_bar.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
         self.title_label = self.create_label(
@@ -69,8 +68,7 @@ class GUI:
 
     def create_sidebar(self):
         """Sidebar with action buttons and null-handling options."""
-        self.sidebar = ctk.CTkFrame(
-            self.root, fg_color="white", corner_radius=15)
+        self.sidebar = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
         self.sidebar.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
         # Add buttons to the sidebar
@@ -101,8 +99,7 @@ class GUI:
         self.preprocess_button.configure(state="disabled")
 
         # Null-handling section
-        self.null_handling_frame = ctk.CTkFrame(
-            self.sidebar, fg_color="#f5f5f5", corner_radius=10)
+        self.null_handling_frame = ctk.CTkFrame(self.sidebar, fg_color="#f5f5f5", corner_radius=10)
         self.null_handling_frame.pack(pady=20, fill="x", padx=10)
 
         self.null_handling_label = self.create_label(
@@ -181,27 +178,22 @@ class GUI:
 
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
-        self.main_section = ctk.CTkFrame(
-            self.root, fg_color="white", corner_radius=15)
-        self.main_section.grid(
-            row=1, column=1, sticky="nsew", padx=10, pady=10)
+        self.main_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
+        self.main_section.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
 
         # Configure grid inside main section
         self.main_section.grid_rowconfigure(0, weight=1)
         self.main_section.grid_columnconfigure(0, weight=1)
 
         # Frame for the table and scrollbars
-        self.table_frame = ctk.CTkFrame(
-            self.main_section, corner_radius=15, fg_color="white")
+        self.table_frame = ctk.CTkFrame(self.main_section, corner_radius=15, fg_color="white")
         self.table_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Scrollbars for the table
-        self.x_scrollbar = ttk.Scrollbar(
-            self.table_frame, orient="horizontal", style="Custom.Horizontal.TScrollbar")
+        self.x_scrollbar = ttk.Scrollbar(self.table_frame, orient="horizontal", style="Custom.Horizontal.TScrollbar")
         self.x_scrollbar.pack(side="bottom", fill="x")
 
-        self.y_scrollbar = ttk.Scrollbar(
-            self.table_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
+        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
         self.y_scrollbar.pack(side="right", fill="y")
 
         # Table setup with scrollbars
@@ -219,13 +211,9 @@ class GUI:
 
         # Styling the table
         style = ttk.Style()
-        style.configure("Treeview", font=("Roboto", 12),
-                        background="white", foreground="black", rowheight=25)
-        style.configure("Treeview.Heading", font=(
-            "Roboto", 14, "bold"), background="#dfe6e9", foreground="black")
-        style.map("Treeview",
-                  background=[("selected", "#b2bec3")],
-                  foreground=[("selected", "#ffffff")])
+        style.configure("Treeview", font=("Roboto", 12), background="white", foreground="black", rowheight=25)
+        style.configure("Treeview.Heading", font=("Roboto", 14, "bold"), background="#dfe6e9", foreground="black")
+        style.map("Treeview", background=[("selected", "#b2bec3")], foreground=[("selected", "#ffffff")])
 
         # Styling the scrollbars
         style.configure(
@@ -254,10 +242,8 @@ class GUI:
 
     def create_bottom_section(self):
         """Bottom section with description, file info, and column selections."""
-        self.bottom_section = ctk.CTkFrame(
-            self.root, fg_color="white", corner_radius=15)
-        self.bottom_section.grid(
-            row=2, column=1, sticky="nsew", padx=10, pady=10)
+        self.bottom_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
+        self.bottom_section.grid(row=2, column=1, sticky="nsew", padx=10, pady=10)
 
         # === Etiqueta para descripción del modelo ===
         self.description_label = self.create_label(
@@ -266,8 +252,7 @@ class GUI:
             font=("Roboto", 14),
             text_color="black"
         )
-        self.description_label.grid(
-            row=0, column=0, sticky="w", padx=10, pady=(5, 2))
+        self.description_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5, 2))
 
         # === Entrada de descripción ===
         self.description_entry = ctk.CTkEntry(
@@ -275,8 +260,7 @@ class GUI:
             placeholder_text="Enter description here...",
             width=600
         )
-        self.description_entry.grid(
-            row=1, column=0, sticky="w", padx=10, pady=(2, 5))
+        self.description_entry.grid(row=1, column=0, sticky="w", padx=10, pady=(2, 5))
 
         # === Botón para guardar descripción ===
         self.save_description_button = ctk.CTkButton(
@@ -288,8 +272,7 @@ class GUI:
             hover_color="#27ae60",
             text_color="white"
         )
-        self.save_description_button.grid(
-            row=2, column=0, sticky="w", padx=10, pady=(2, 5))
+        self.save_description_button.grid(row=2, column=0, sticky="w", padx=10, pady=(2, 5))
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_path_label = ctk.CTkLabel(
@@ -307,8 +290,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.input_columns_label.grid(
-            row=4, column=0, sticky="w", padx=10, pady=7)
+        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=7)
 
         self.output_column_label = self.create_label(
             self.bottom_section,
@@ -316,8 +298,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.output_column_label.grid(
-            row=4, column=1, sticky="w", padx=10, pady=(2, 2))
+        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(2, 2))
 
         # Configuración de las columnas y filas
         self.bottom_section.grid_columnconfigure(0, weight=1)
@@ -346,12 +327,10 @@ class GUI:
                     self.columns_selected = []
                     self.output_column = None
                     # Update file path label
-                    self.file_path_label.configure(
-                        text=f"File loaded: {self._file}")
+                    self.file_path_label.configure(text=f"File loaded: {self._file}")
                 else:
                     self.data_table.delete(*self.data_table.get_children())
-                    messagebox.showerror(
-                        "Error", "No data to display. Please check the file.")
+                    messagebox.showerror("Error", "No data to display. Please check the file.")
             except Exception as e:
                 messagebox.showerror("Error", f"Error while loading file: {e}")
 
@@ -379,8 +358,7 @@ class GUI:
         self.preprocess.apply_constant_fill()
 
     def select_columns(self):
-        self.columns_select = Columns(
-            self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
+        self.columns_select = Columns(self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
         self.columns_select.select_columns()
 
     def select_output_column(self):
@@ -392,8 +370,7 @@ class GUI:
 
     def create_model(self):
         self.get_selected_columns()
-        self.model.create_model(columns_selected=self.columns_selected,
-                                output_column=self.output_column, data_table_df=self.data_table_df)
+        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df)
 
     def save_model(self):
         self.model.save_model()
@@ -401,9 +378,3 @@ class GUI:
     def save_description(self):
         description = self.description_entry.get()
         self.model.save_description(description)
-
-
-if __name__ == "__main__":
-    root = ctk.CTk()
-    app = GUI(root)
-    root.mainloop()
