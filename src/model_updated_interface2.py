@@ -16,18 +16,16 @@ class Model:
         self.data_table_df = None
         self.model = None
         self.save_button = save_button
+        self.description_saved = None
 
-    def save_description(self):
-        self.description_saved = self.description_entry.get()
-        if self.description_saved:
-            messagebox.showinfo("Success", "Description saved successfully!")
-        else:
-            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
+    
 
     def create_model(self, columns_selected, output_column, data_table_df):
         self.columns_selected = columns_selected
         self.output_column = output_column
         self.data_table_df = data_table_df
+        if not self.description_saved:
+            messagebox.showinfo("Reminder", "No description saved.")
 
         if not self.columns_selected or not self.output_column:
             messagebox.showerror("Error", "Please select input and output columns.")
@@ -103,3 +101,31 @@ class Model:
                 messagebox.showinfo("Model Saved", f"Model saved at {file_path}")
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
+
+    def load_model(self):
+        file_path = filedialog.askopenfilename(
+            title="Select Model File",
+            filetypes=[("PFL files", "*.pkl"), ("Joblib files", "*.joblib")]
+        )
+        if file_path:
+            try:
+                if file_path.endswith(".pkl"):
+                    with open(file_path, 'rb') as file:
+                        model_data = pickle.load(file)
+                elif file_path.endswith(".joblib"):
+                    model_data = joblib.load(file_path)
+                else:
+                    raise ValueError("Unsupported file format.")
+
+                self.update_interface_with_model(model_data)
+                messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
+            except Exception as e:
+                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+
+    def save_description(self,description_saved):
+        self.description_saved = description_saved
+        if self.description_saved:
+            messagebox.showinfo("Success", "Description saved successfully!")
+        else:
+            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
+

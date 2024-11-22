@@ -5,11 +5,14 @@ import matplotlib.pyplot as plt
 
 
 class Preprocess():
-    def __init__(self,data_table_df,null_option_menu,display_data,constant_entry):
+    def __init__(self,data_table_df,null_option_menu,display_data,constant_entry,select_columns_button,select_output_button,preprocess_button):
         self.data_table_df = data_table_df
         self.null_option_menu = null_option_menu
         self.display_data = display_data
         self.constant_entry = constant_entry
+        self.select_columns_button = select_columns_button
+        self.select_output_button = select_output_button
+        self.preprocess_button = preprocess_button
     def preprocess_data(self):
         if self.data_table_df is not None:
             # Contar valores nulos en cada columna
@@ -21,6 +24,7 @@ class Preprocess():
                 self.null_option_menu.configure(state="normal")
             else:
                 messagebox.showinfo("No Null Values", "No null values detected in the dataset.")
+            self.preprocess_button.configure(state="disabled")
         else:
             messagebox.showwarning("No Data Loaded", "Please load data first.")
 
@@ -32,7 +36,11 @@ class Preprocess():
                 messagebox.showinfo("Rows Deleted", "Rows with null values have been deleted.")
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
-                
+                self.constant_entry.configure(state="disabled")
+                self.constant_entry.delete(0, 'end')
+                self.constant_entry.pack_forget()
+                self.select_columns_button.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with mean":
             confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
@@ -44,7 +52,11 @@ class Preprocess():
                 messagebox.showinfo("Filled with Mean", "Null values have been filled with the mean of their respective columns.")
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
-                
+                self.constant_entry.configure(state="disabled")
+                self.constant_entry.delete(0, 'end')
+                self.constant_entry.pack_forget()
+                self.select_columns_button.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with median":
             confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
@@ -56,16 +68,20 @@ class Preprocess():
                 messagebox.showinfo("Filled with Median", "Null values have been filled with the median of their respective columns.")
                 self.display_data(self.data_table_df)
                 self.null_option_menu.configure(state="disabled")
-                
+                self.constant_entry.configure(state="disabled")
+                self.constant_entry.delete(0, 'end')
+                self.constant_entry.pack_forget()
+                self.select_columns_button.configure(state="normal")
+                self.select_output_button.configure(state="normal")
 
         elif option == "Fill with constant":
             # Habilita el campo de entrada para ingresar el valor
-            self.constant_entry.place(x=60, y=203)
+            self.constant_entry.pack(pady=10, fill="x")
             self.constant_entry.configure(state="normal")
             self.constant_entry.focus()
 
     def hide_constant_entry(self, event=None):
-        self.constant_entry.place_forget() 
+        self.constant_entry.pack_forget() 
         self.constant_entry.configure(state="disabled")
 
     def apply_constant_fill(self, event=None):
@@ -79,8 +95,9 @@ class Preprocess():
                 self.display_data(self.data_table_df)
                 self.constant_entry.configure(state="disabled")
                 self.constant_entry.delete(0, 'end')
-                self.constant_entry.place_forget() 
+                self.constant_entry.pack_forget()
                 self.null_option_menu.configure(state="disabled")
-                
+                self.select_columns_button.configure(state="normal")
+                self.select_output_button.configure(state="normal")
             except ValueError:
                 messagebox.showwarning("Invalid Input", "Please enter a valid number for the constant.")

@@ -4,7 +4,7 @@ import numpy as np
 from Model import Model
 from Modulo import DataImport
 from columns import Columns
-from preprocess import Preprocess
+from preprocess_updated_interface2 import Preprocess
 
 class GUI:
     def __init__(self, root):

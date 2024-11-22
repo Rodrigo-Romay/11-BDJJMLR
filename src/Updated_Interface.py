@@ -1,7 +1,9 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, IntVar, ttk
 from Modulo import DataImport
-
+from preprocess_updated_interface2 import Preprocess
+from model_updated_interface2 import Model
+from columns_updated_interface2 import Columns
 
 class GUI:
     def __init__(self, root):
@@ -12,7 +14,7 @@ class GUI:
         self.output_column = None
         self.data_table_df = None
         self.description_saved = ""
-        self.model = None
+
 
         # Configure the window
         self.root.geometry("1200x800")
@@ -168,6 +170,8 @@ class GUI:
             command=self.save_model,
             **button_style
         )
+        self.model = Model(self.save_button)
+
         self.save_button.pack(pady=10, fill="x", padx=10)
         self.save_button.configure(state="disabled")
 
@@ -340,188 +344,43 @@ class GUI:
             self.data_table.column(col, anchor="center")
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
+    def handle_null_option(self,option):
+        self.preprocess.handle_null_option(option)
 
     def preprocess_data(self):
-        if self.data_table_df is not None:
-            # Contar valores nulos en cada columna
-            null_counts = self.data_table_df.isnull().sum()
-            self.null_counts_dict = null_counts[null_counts > 0].to_dict()
-            if self.null_counts_dict:
-                null_columns_info = '\n'.join([f"{col}: {count}" for col, count in self.null_counts_dict.items()])
-                messagebox.showinfo("Null Values Detected", f"Null values found:\n{null_columns_info}")
-                self.null_option_menu.configure(state="normal")
-            else:
-                messagebox.showinfo("No Null Values", "No null values detected in the dataset.")
-            self.preprocess_button.configure(state="disabled")
-        else:
-            messagebox.showwarning("No Data Loaded", "Please load data first.")
-
-    def handle_null_option(self, option):
-        if option == "Delete rows with nulls":
-            confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
-            if confirm:
-                self.data_table_df.dropna(inplace=True)
-                messagebox.showinfo("Rows Deleted", "Rows with null values have been deleted.")
-                self.display_data(self.data_table_df)
-                self.null_option_menu.configure(state="disabled")
-                self.constant_entry.configure(state="disabled")
-                self.constant_entry.delete(0, 'end')
-                self.constant_entry.pack_forget()
-                self.select_columns_button.configure(state="normal")
-                self.select_output_button.configure(state="normal")
-
-        elif option == "Fill with mean":
-            confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
-            if confirm:
-                for col in self.null_counts_dict.keys():
-                    if self.data_table_df[col].dtype in ['float64', 'int64']:
-                        mean_value = round(self.data_table_df[col].mean(), 4)
-                        self.data_table_df[col] = self.data_table_df[col].fillna(mean_value)
-                messagebox.showinfo("Filled with Mean", "Null values have been filled with the mean of their respective columns.")
-                self.display_data(self.data_table_df)
-                self.null_option_menu.configure(state="disabled")
-                self.constant_entry.configure(state="disabled")
-                self.constant_entry.delete(0, 'end')
-                self.constant_entry.pack_forget()
-                self.select_columns_button.configure(state="normal")
-                self.select_output_button.configure(state="normal")
-
-        elif option == "Fill with median":
-            confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
-            if confirm:
-                for col in self.null_counts_dict.keys():
-                    if self.data_table_df[col].dtype in ['float64', 'int64']:
-                        median_value = round(self.data_table_df[col].median(), 4)
-                        self.data_table_df[col] = self.data_table_df[col].fillna(median_value)
-                messagebox.showinfo("Filled with Median", "Null values have been filled with the median of their respective columns.")
-                self.display_data(self.data_table_df)
-                self.null_option_menu.configure(state="disabled")
-                self.constant_entry.configure(state="disabled")
-                self.constant_entry.delete(0, 'end')
-                self.constant_entry.pack_forget()
-                self.select_columns_button.configure(state="normal")
-                self.select_output_button.configure(state="normal")
-
-        elif option == "Fill with constant":
-            # Habilita el campo de entrada para ingresar el valor
-            self.constant_entry.pack(pady=10, fill="x")
-            self.constant_entry.configure(state="normal")
-            self.constant_entry.focus()
-
-    def hide_constant_entry(self, event=None):
-        self.constant_entry.pack_forget() 
-        self.constant_entry.configure(state="disabled")
-
-    def apply_constant_fill(self, event=None):
-        confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
-        if confirm:
-            try:
-                # Obtener el valor constante ingresado
-                constant_value = float(self.constant_entry.get())
-                self.data_table_df.fillna(constant_value, inplace=True)
-                messagebox.showinfo("Filled with Constant", "Null values have been filled with the specified constant.")
-                self.display_data(self.data_table_df)
-                self.constant_entry.configure(state="disabled")
-                self.constant_entry.delete(0, 'end')
-                self.constant_entry.pack_forget()
-                self.null_option_menu.configure(state="disabled")
-                self.select_columns_button.configure(state="normal")
-                self.select_output_button.configure(state="normal")
-            except ValueError:
-                messagebox.showwarning("Invalid Input", "Please enter a valid number for the constant.")
-
-
-
+        self.preprocess = Preprocess(self.data_table_df,self.null_option_menu,self.display_data,self.constant_entry,self.select_columns_button,self.select_output_button,self.preprocess_button)
+        self.preprocess.preprocess_data()
+    
+    def hide_constant_entry(self):
+        self.preprocess.hide_constant_entry()
+    
+    def apply_constant_fill(self):
+        self.preprocess.apply_constant_fill()
+  
     def select_columns(self):
-        # Crear una nueva ventana para seleccionar las columnas
-        self.column_window = Toplevel(self.root)
-        self.column_window.title("Select Columns")
-        self.column_window.configure(bg="#2c3e50")
-        self.column_vars = {}
-
-        for idx, col in enumerate(self.data_table["columns"]):
-            var = IntVar()
-            if col in self.columns_selected:
-                var.set(1)  # Marcar como seleccionada
-            self.column_vars[col] = var
-            checkbox = ctk.CTkCheckBox(self.column_window, text=col, variable=var, text_color="white",fg_color="green", border_color="grey")
-            checkbox.pack(anchor="w")
-
-        confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
-        confirm_button.pack(pady=10)
-
-    def confirm_selection(self):
-        self.columns_selected = [col for col, var in self.column_vars.items() if var.get() == 1]
-
-        if self.columns_selected:
-                self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
-                self.column_window.destroy()
-                messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
-
-        else:
-            messagebox.showwarning("No Selection", "No columns selected.")
-
-        self.column_window.destroy()
-
+        self.columns_select = Columns(self.root,self.data_table,self.input_columns_label,self.output_column_label,self.create_model_button)
+        self.columns_select.select_columns()
+     
     def select_output_column(self):
-        # Crear una nueva ventana para seleccionar la columna de salida
-        self.output_column_window = Toplevel(self.root)
-        self.output_column_window.title("Select Output Column")
-
-        self.output_column_window.configure(bg="#2c3e50")
-
-        # Variable para almacenar la selección de columna de salida
-        self.output_column_var = ctk.StringVar(value="")  # Almacena la columna seleccionada
-
-        # Crear radiobuttons para cada columna
-        for idx, col in enumerate(self.data_table["columns"]):
-            radiobutton = ctk.CTkRadioButton(self.output_column_window, 
-                                            text=col, 
-                                            variable=self.output_column_var, 
-                                            value=col,  # Cada radiobutton tiene un valor único (la columna)
-                                            text_color="white",
-                                            fg_color="white",
-                                            hover_color="#444444",
-                                            border_width_checked=3.5)
-            radiobutton.pack(anchor="w")
-
-            # Si ya hay una columna de salida seleccionada, marcarla
-            if col == self.output_column:
-                self.output_column_var.set(col)
-
-        # Botón para confirmar la selección
-        confirm_button = ctk.CTkButton(self.output_column_window,text="Confirm Selection", command=self.confirm_output_column)                               
-        confirm_button.pack(pady=10)
-
-    def confirm_output_column(self):
-        # Obtener la columna seleccionada
-        selected_output_column = self.output_column_var.get()
-        if selected_output_column:
-            messagebox.showinfo("Output Column Selected", f"Selected Output Column: {selected_output_column}")
-            self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
-            self.output_column_window.destroy()
-            self.output_column_label.configure(text=f"Output Column: {self.output_column}")
-            self.create_model_button.configure(state="normal")
-
-        else:
-            messagebox.showwarning("No Column Selected", "Please select an output column.")
+        self.columns_select.select_output_column()
+    
+    def get_selected_columns(self):
+        self.columns_selected =  self.columns_select.columns_selected
+        self.output_column =  self.columns_select.output_column
 
     def create_model(self):
-        pass
+        self.get_selected_columns()
+        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df)
 
     def save_model(self):
-        pass
+        self.model.save_model()
 
     def save_description(self):
-        self.description_saved = self.description_entry.get()
-        if self.description_saved:
-            messagebox.showinfo("Success", "Description saved successfully!")
-        else:
-            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
+        description = self.description_entry.get()
+        self.model.save_description(description)
 
 
 if __name__ == "__main__":
     root = ctk.CTk()
     app = GUI(root)
     root.mainloop()
-
