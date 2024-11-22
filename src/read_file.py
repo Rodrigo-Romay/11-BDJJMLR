@@ -38,8 +38,7 @@ class DataImport():
             db_connection = sqlite3.connect(self._file)
             cursor = db_connection.cursor()
 
-            cursor.execute(
-                "SELECT name FROM sqlite_master WHERE type= 'table';")
+            cursor.execute("SELECT name FROM sqlite_master WHERE type= 'table';")
             tables = cursor.fetchall()
 
             if len(tables) == 0:
@@ -48,8 +47,7 @@ class DataImport():
             table_name = tables[0][0]
             print(f"\nTable '{table_name}' found.\n")
 
-            self._data = pd.read_sql(
-                f"SELECT * FROM {table_name}", db_connection)
+            self._data = pd.read_sql(f"SELECT * FROM {table_name}", db_connection)
         except sqlite3.DatabaseError:
             print("\nCorrupt file\n")
         except FileNotFoundError:

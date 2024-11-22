@@ -30,8 +30,7 @@ class Columns():
                                        text_color="white", fg_color="green", border_color="grey")
             checkbox.pack(anchor="w")
 
-        confirm_button = ctk.CTkButton(
-            self.column_window, text="Confirm Selection", command=self.confirm_selection)
+        confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
         confirm_button.pack(pady=10)
 
     def confirm_selection(self):
@@ -42,8 +41,7 @@ class Columns():
             self.input_columns_label.configure(
                 text=f"Input Columns: {', '.join(self.columns_selected)}")
             self.column_window.destroy()
-            messagebox.showinfo("Columns Selected", f"Selected columns: {
-                                ', '.join(self.columns_selected)}")
+            messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
 
         else:
             messagebox.showwarning("No Selection", "No columns selected.")
@@ -58,8 +56,7 @@ class Columns():
         self.output_column_window.configure(bg="#2c3e50")
 
         # Variable para almacenar la selección de columna de salida
-        self.output_column_var = ctk.StringVar(
-            value="")  # Almacena la columna seleccionada
+        self.output_column_var = ctk.StringVar(value="")  # Almacena la columna seleccionada
 
         # Crear radiobuttons para cada columna
         for idx, col in enumerate(self.data_table["columns"]):
@@ -79,23 +76,19 @@ class Columns():
                 self.output_column_var.set(col)
 
         # Botón para confirmar la selección
-        confirm_button = ctk.CTkButton(
-            self.output_column_window, text="Confirm Selection", command=self.confirm_output_column)
+        confirm_button = ctk.CTkButton(self.output_column_window, text="Confirm Selection", command=self.confirm_output_column)
         confirm_button.pack(pady=10)
 
     def confirm_output_column(self):
         # Obtener la columna seleccionada
         selected_output_column = self.output_column_var.get()
         if selected_output_column:
-            messagebox.showinfo("Output Column Selected", f"Selected Output Column: {
-                                selected_output_column}")
+            messagebox.showinfo("Output Column Selected", f"Selected Output Column: {selected_output_column}")
             # Almacenar la columna seleccionada como atributo de clase
             self.output_column = selected_output_column
             self.output_column_window.destroy()
-            self.output_column_label.configure(
-                text=f"Output Column: {self.output_column}")
+            self.output_column_label.configure(text=f"Output Column: {self.output_column}")
             self.create_model_button.configure(state="normal")
 
         else:
-            messagebox.showwarning("No Column Selected",
-                                   "Please select an output column.")
+            messagebox.showwarning("No Column Selected","Please select an output column.")
