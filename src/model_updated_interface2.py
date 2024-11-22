@@ -6,6 +6,7 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from tkinter import messagebox, filedialog
 
+
 class Model:
     def __init__(self, save_button):
         self.model_formula = {}
@@ -18,8 +19,6 @@ class Model:
         self.save_button = save_button
         self.description_saved = None
 
-    
-
     def create_model(self, columns_selected, output_column, data_table_df):
         self.columns_selected = columns_selected
         self.output_column = output_column
@@ -28,7 +27,8 @@ class Model:
             messagebox.showinfo("Reminder", "No description saved.")
 
         if not self.columns_selected or not self.output_column:
-            messagebox.showerror("Error", "Please select input and output columns.")
+            messagebox.showerror(
+                "Error", "Please select input and output columns.")
             return
 
         try:
@@ -42,17 +42,20 @@ class Model:
             y_pred = self.model.predict(X)
             r2 = self.model.score(X, y)
             mse = mean_squared_error(y, y_pred)
-            self.model_formula = {"formula": f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_}"}
+            self.model_formula = {"formula": f"{self.output_column} = {
+                self.model.coef_} * {self.columns_selected} + {self.model.intercept_}"}
             self.model_metrics = {"r2": r2, "mse": mse}
 
-            messagebox.showinfo("Model Created", f"RÂ²: {r2:.4f}\nMSE: {mse:.4f}")
+            messagebox.showinfo("Model Created", f"RÂ²: {
+                                r2:.4f}\nMSE: {mse:.4f}")
 
             if X.shape[1] == 1:
                 self.plot_model_2d(X, y, y_pred, r2, mse)
             elif X.shape[1] == 2:
                 self.plot_model_3d(X, y, y_pred, r2, mse)
             else:
-                messagebox.showinfo("Model Created", "Model created successfully, but cannot plot with more than 2 features.")
+                messagebox.showinfo(
+                    "Model Created", "Model created successfully, but cannot plot with more than 2 features.")
             self.save_button.configure(state="normal")
         except Exception as e:
             messagebox.showerror("Model Error", f"An error occurred: {e}")
@@ -65,7 +68,8 @@ class Model:
         plt.ylabel(self.output_column)
         plt.title("Linear Regression Model (2D)")
         plt.legend()
-        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
+        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {
+                     r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
         plt.show()
 
     def plot_model_3d(self, X, y, y_pred, r2, mse):
@@ -77,12 +81,14 @@ class Model:
         ax.set_ylabel(self.columns_selected[1])
         ax.set_zlabel(self.output_column)
         ax.set_title("Linear Regression Model (3D)")
-        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
+        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {
+                     r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
         plt.legend()
         plt.show()
 
     def save_model(self):
-        file_path = filedialog.asksaveasfilename(filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
+        file_path = filedialog.asksaveasfilename(
+            filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
         if file_path:
             try:
                 model_data = {
@@ -98,7 +104,8 @@ class Model:
                         pickle.dump(model_data, file)
                 elif file_path.endswith(".joblib"):
                     joblib.dump(model_data, file_path)
-                messagebox.showinfo("Model Saved", f"Model saved at {file_path}")
+                messagebox.showinfo(
+                    "Model Saved", f"Model saved at {file_path}")
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
@@ -118,14 +125,16 @@ class Model:
                     raise ValueError("Unsupported file format.")
 
                 self.update_interface_with_model(model_data)
-                messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
+                messagebox.showinfo(
+                    "Model Loaded", "Model loaded succesfully.")
             except Exception as e:
-                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+                messagebox.showerror(
+                    "Load Error", f"An error occurred while loading the model: {str(e)}")
 
-    def save_description(self,description_saved):
+    def save_description(self, description_saved):
         self.description_saved = description_saved
         if self.description_saved:
             messagebox.showinfo("Success", "Description saved successfully!")
         else:
-            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
-
+            messagebox.showwarning(
+                "Warning", "Description is empty. Please enter a description.")

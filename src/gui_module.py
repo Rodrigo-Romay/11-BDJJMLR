@@ -2,7 +2,7 @@ import customtkinter as ctk
 from tkinter import filedialog, messagebox, ttk, Toplevel, IntVar, StringVar
 import numpy as np
 from Model import Model
-from Modulo import DataImport
+from read_file import DataImport
 from columns import Columns
 from preprocess_updated_interface2 import Preprocess
 

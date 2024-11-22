@@ -1,9 +1,10 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox, Toplevel, IntVar, ttk
-from Modulo import DataImport
+from tkinter import filedialog, messagebox, ttk
+from read_file import DataImport
 from preprocess_updated_interface2 import Preprocess
 from model_updated_interface2 import Model
 from columns_updated_interface2 import Columns
+
 
 class GUI:
     def __init__(self, root):
@@ -14,7 +15,6 @@ class GUI:
         self.output_column = None
         self.data_table_df = None
         self.description_saved = ""
-
 
         # Configure the window
         self.root.geometry("1200x800")
@@ -47,7 +47,8 @@ class GUI:
 
     def create_title_bar(self):
         """Top title bar with the app name."""
-        self.title_bar = ctk.CTkFrame(self.root, fg_color="#2c3e50", height=50, corner_radius=0)
+        self.title_bar = ctk.CTkFrame(
+            self.root, fg_color="#2c3e50", height=50, corner_radius=0)
         self.title_bar.grid(row=0, column=0, columnspan=2, sticky="nsew")
 
         self.title_label = self.create_label(
@@ -68,7 +69,8 @@ class GUI:
 
     def create_sidebar(self):
         """Sidebar with action buttons and null-handling options."""
-        self.sidebar = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
+        self.sidebar = ctk.CTkFrame(
+            self.root, fg_color="white", corner_radius=15)
         self.sidebar.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
         # Add buttons to the sidebar
@@ -99,7 +101,8 @@ class GUI:
         self.preprocess_button.configure(state="disabled")
 
         # Null-handling section
-        self.null_handling_frame = ctk.CTkFrame(self.sidebar, fg_color="#f5f5f5", corner_radius=10)
+        self.null_handling_frame = ctk.CTkFrame(
+            self.sidebar, fg_color="#f5f5f5", corner_radius=10)
         self.null_handling_frame.pack(pady=20, fill="x", padx=10)
 
         self.null_handling_label = self.create_label(
@@ -115,7 +118,8 @@ class GUI:
         self.null_option_menu = ctk.CTkOptionMenu(
             self.null_handling_frame,
             variable=self.null_handling_option,
-            values=["Delete rows with nulls", "Fill with mean", "Fill with median", "Fill with constant"],
+            values=["Delete rows with nulls", "Fill with mean",
+                    "Fill with median", "Fill with constant"],
             command=self.handle_null_option,
             button_color="#2ecc71",
             fg_color="#ecf0f1",
@@ -177,22 +181,27 @@ class GUI:
 
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
-        self.main_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
-        self.main_section.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+        self.main_section = ctk.CTkFrame(
+            self.root, fg_color="white", corner_radius=15)
+        self.main_section.grid(
+            row=1, column=1, sticky="nsew", padx=10, pady=10)
 
         # Configure grid inside main section
         self.main_section.grid_rowconfigure(0, weight=1)
         self.main_section.grid_columnconfigure(0, weight=1)
 
         # Frame for the table and scrollbars
-        self.table_frame = ctk.CTkFrame(self.main_section, corner_radius=15, fg_color="white")
+        self.table_frame = ctk.CTkFrame(
+            self.main_section, corner_radius=15, fg_color="white")
         self.table_frame.grid(row=0, column=0, sticky="nsew", padx=10, pady=10)
 
         # Scrollbars for the table
-        self.x_scrollbar = ttk.Scrollbar(self.table_frame, orient="horizontal", style="Custom.Horizontal.TScrollbar")
+        self.x_scrollbar = ttk.Scrollbar(
+            self.table_frame, orient="horizontal", style="Custom.Horizontal.TScrollbar")
         self.x_scrollbar.pack(side="bottom", fill="x")
 
-        self.y_scrollbar = ttk.Scrollbar(self.table_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
+        self.y_scrollbar = ttk.Scrollbar(
+            self.table_frame, orient="vertical", style="Custom.Vertical.TScrollbar")
         self.y_scrollbar.pack(side="right", fill="y")
 
         # Table setup with scrollbars
@@ -210,11 +219,13 @@ class GUI:
 
         # Styling the table
         style = ttk.Style()
-        style.configure("Treeview", font=("Roboto", 12), background="white", foreground="black", rowheight=25)
-        style.configure("Treeview.Heading", font=("Roboto", 14, "bold"), background="#dfe6e9", foreground="black")
+        style.configure("Treeview", font=("Roboto", 12),
+                        background="white", foreground="black", rowheight=25)
+        style.configure("Treeview.Heading", font=(
+            "Roboto", 14, "bold"), background="#dfe6e9", foreground="black")
         style.map("Treeview",
-                background=[("selected", "#b2bec3")],
-                foreground=[("selected", "#ffffff")])
+                  background=[("selected", "#b2bec3")],
+                  foreground=[("selected", "#ffffff")])
 
         # Styling the scrollbars
         style.configure(
@@ -241,11 +252,12 @@ class GUI:
             relief="flat"
         )
 
-
     def create_bottom_section(self):
         """Bottom section with description, file info, and column selections."""
-        self.bottom_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
-        self.bottom_section.grid(row=2, column=1, sticky="nsew", padx=10, pady=10)
+        self.bottom_section = ctk.CTkFrame(
+            self.root, fg_color="white", corner_radius=15)
+        self.bottom_section.grid(
+            row=2, column=1, sticky="nsew", padx=10, pady=10)
 
         # === Etiqueta para descripción del modelo ===
         self.description_label = self.create_label(
@@ -254,7 +266,8 @@ class GUI:
             font=("Roboto", 14),
             text_color="black"
         )
-        self.description_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5, 2)) 
+        self.description_label.grid(
+            row=0, column=0, sticky="w", padx=10, pady=(5, 2))
 
         # === Entrada de descripción ===
         self.description_entry = ctk.CTkEntry(
@@ -262,7 +275,8 @@ class GUI:
             placeholder_text="Enter description here...",
             width=600
         )
-        self.description_entry.grid(row=1, column=0, sticky="w", padx=10, pady=(2, 5)) 
+        self.description_entry.grid(
+            row=1, column=0, sticky="w", padx=10, pady=(2, 5))
 
         # === Botón para guardar descripción ===
         self.save_description_button = ctk.CTkButton(
@@ -274,7 +288,8 @@ class GUI:
             hover_color="#27ae60",
             text_color="white"
         )
-        self.save_description_button.grid(row=2, column=0, sticky="w", padx=10, pady=(2, 5)) 
+        self.save_description_button.grid(
+            row=2, column=0, sticky="w", padx=10, pady=(2, 5))
 
         # === Etiqueta para mostrar la ruta del archivo ===
         self.file_path_label = ctk.CTkLabel(
@@ -283,7 +298,7 @@ class GUI:
             font=("Roboto", 12),
             text_color="#7f8c8d"
         )
-        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=7)  
+        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=7)
 
         # === Etiquetas para columnas de entrada y salida ===
         self.input_columns_label = self.create_label(
@@ -292,7 +307,8 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=7) 
+        self.input_columns_label.grid(
+            row=4, column=0, sticky="w", padx=10, pady=7)
 
         self.output_column_label = self.create_label(
             self.bottom_section,
@@ -300,18 +316,19 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(2, 2)) 
+        self.output_column_label.grid(
+            row=4, column=1, sticky="w", padx=10, pady=(2, 2))
 
         # Configuración de las columnas y filas
         self.bottom_section.grid_columnconfigure(0, weight=1)
         self.bottom_section.grid_columnconfigure(1, weight=1)
-        self.bottom_section.grid_rowconfigure(5, weight=0)  
-
+        self.bottom_section.grid_rowconfigure(5, weight=0)
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
             title="Select File",
-            filetypes=[("CSV Files", "*.csv"), ("Excel Files", "*.xlsx *.xls"), ("SQLite Files", "*.db *.sqlite")]
+            filetypes=[("CSV Files", "*.csv"), ("Excel Files",
+                                                "*.xlsx *.xls"), ("SQLite Files", "*.db *.sqlite")]
         )
         if file_path:
             self._file = file_path
@@ -329,10 +346,12 @@ class GUI:
                     self.columns_selected = []
                     self.output_column = None
                     # Update file path label
-                    self.file_path_label.configure(text=f"File loaded: {self._file}")
+                    self.file_path_label.configure(
+                        text=f"File loaded: {self._file}")
                 else:
                     self.data_table.delete(*self.data_table.get_children())
-                    messagebox.showerror("Error", "No data to display. Please check the file.")
+                    messagebox.showerror(
+                        "Error", "No data to display. Please check the file.")
             except Exception as e:
                 messagebox.showerror("Error", f"Error while loading file: {e}")
 
@@ -344,33 +363,37 @@ class GUI:
             self.data_table.column(col, anchor="center")
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
-    def handle_null_option(self,option):
+
+    def handle_null_option(self, option):
         self.preprocess.handle_null_option(option)
 
     def preprocess_data(self):
-        self.preprocess = Preprocess(self.data_table_df,self.null_option_menu,self.display_data,self.constant_entry,self.select_columns_button,self.select_output_button,self.preprocess_button)
+        self.preprocess = Preprocess(self.data_table_df, self.null_option_menu, self.display_data,
+                                     self.constant_entry, self.select_columns_button, self.select_output_button, self.preprocess_button)
         self.preprocess.preprocess_data()
-    
+
     def hide_constant_entry(self):
         self.preprocess.hide_constant_entry()
-    
+
     def apply_constant_fill(self):
         self.preprocess.apply_constant_fill()
-  
+
     def select_columns(self):
-        self.columns_select = Columns(self.root,self.data_table,self.input_columns_label,self.output_column_label,self.create_model_button)
+        self.columns_select = Columns(
+            self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
         self.columns_select.select_columns()
-     
+
     def select_output_column(self):
         self.columns_select.select_output_column()
-    
+
     def get_selected_columns(self):
-        self.columns_selected =  self.columns_select.columns_selected
-        self.output_column =  self.columns_select.output_column
+        self.columns_selected = self.columns_select.columns_selected
+        self.output_column = self.columns_select.output_column
 
     def create_model(self):
         self.get_selected_columns()
-        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df)
+        self.model.create_model(columns_selected=self.columns_selected,
+                                output_column=self.output_column, data_table_df=self.data_table_df)
 
     def save_model(self):
         self.model.save_model()
