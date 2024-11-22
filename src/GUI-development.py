@@ -1,7 +1,7 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, Toplevel, IntVar, simpledialog
 from tkinter import ttk
-from Modulo import DataImport
+from read_file import DataImport
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 import numpy as np
