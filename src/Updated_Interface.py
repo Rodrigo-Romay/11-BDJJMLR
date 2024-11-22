@@ -1,6 +1,5 @@
 import customtkinter as ctk
-from tkinter import filedialog, messagebox, Toplevel
-from tkinter import ttk
+from tkinter import filedialog, messagebox, Toplevel, IntVar, ttk
 from Modulo import DataImport
 
 
@@ -97,42 +96,6 @@ class GUI:
         self.preprocess_button.pack(pady=10, fill="x", padx=10)
         self.preprocess_button.configure(state="disabled")
 
-        self.select_columns_button = ctk.CTkButton(
-            self.sidebar,
-            text="Select Input Columns",
-            command=self.select_columns,
-            **button_style
-        )
-        self.select_columns_button.pack(pady=10, fill="x", padx=10)
-        self.select_columns_button.configure(state="disabled")
-
-        self.select_output_button = ctk.CTkButton(
-            self.sidebar,
-            text="Select Output Column",
-            command=self.select_output_column,
-            **button_style
-        )
-        self.select_output_button.pack(pady=10, fill="x", padx=10)
-        self.select_output_button.configure(state="disabled")
-
-        self.create_model_button = ctk.CTkButton(
-            self.sidebar,
-            text="Create Model",
-            command=self.create_model,
-            **button_style
-        )
-        self.create_model_button.pack(pady=10, fill="x", padx=10)
-        self.create_model_button.configure(state="disabled")
-
-        self.save_button = ctk.CTkButton(
-            self.sidebar,
-            text="Save Model",
-            command=self.save_model,
-            **button_style
-        )
-        self.save_button.pack(pady=10, fill="x", padx=10)
-        self.save_button.configure(state="disabled")
-
         # Null-handling section
         self.null_handling_frame = ctk.CTkFrame(self.sidebar, fg_color="#f5f5f5", corner_radius=10)
         self.null_handling_frame.pack(pady=20, fill="x", padx=10)
@@ -171,6 +134,42 @@ class GUI:
         self.constant_entry.pack_forget()
         self.constant_entry.bind("<Return>", self.apply_constant_fill)
         self.root.bind("<Escape>", self.hide_constant_entry)
+
+        self.select_columns_button = ctk.CTkButton(
+            self.sidebar,
+            text="Select Input Columns",
+            command=self.select_columns,
+            **button_style
+        )
+        self.select_columns_button.pack(pady=10, fill="x", padx=10)
+        self.select_columns_button.configure(state="disabled")
+
+        self.select_output_button = ctk.CTkButton(
+            self.sidebar,
+            text="Select Output Column",
+            command=self.select_output_column,
+            **button_style
+        )
+        self.select_output_button.pack(pady=10, fill="x", padx=10)
+        self.select_output_button.configure(state="disabled")
+
+        self.create_model_button = ctk.CTkButton(
+            self.sidebar,
+            text="Create Model",
+            command=self.create_model,
+            **button_style
+        )
+        self.create_model_button.pack(pady=10, fill="x", padx=10)
+        self.create_model_button.configure(state="disabled")
+
+        self.save_button = ctk.CTkButton(
+            self.sidebar,
+            text="Save Model",
+            command=self.save_model,
+            **button_style
+        )
+        self.save_button.pack(pady=10, fill="x", padx=10)
+        self.save_button.configure(state="disabled")
 
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
@@ -434,10 +433,78 @@ class GUI:
 
 
     def select_columns(self):
-        pass
+        # Crear una nueva ventana para seleccionar las columnas
+        self.column_window = Toplevel(self.root)
+        self.column_window.title("Select Columns")
+        self.column_window.configure(bg="#2c3e50")
+        self.column_vars = {}
+
+        for idx, col in enumerate(self.data_table["columns"]):
+            var = IntVar()
+            if col in self.columns_selected:
+                var.set(1)  # Marcar como seleccionada
+            self.column_vars[col] = var
+            checkbox = ctk.CTkCheckBox(self.column_window, text=col, variable=var, text_color="white",fg_color="green", border_color="grey")
+            checkbox.pack(anchor="w")
+
+        confirm_button = ctk.CTkButton(self.column_window, text="Confirm Selection", command=self.confirm_selection)
+        confirm_button.pack(pady=10)
+
+    def confirm_selection(self):
+        self.columns_selected = [col for col, var in self.column_vars.items() if var.get() == 1]
+
+        if self.columns_selected:
+                self.input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+                self.column_window.destroy()
+                messagebox.showinfo("Columns Selected", f"Selected columns: {', '.join(self.columns_selected)}")
+
+        else:
+            messagebox.showwarning("No Selection", "No columns selected.")
+
+        self.column_window.destroy()
 
     def select_output_column(self):
-        pass
+        # Crear una nueva ventana para seleccionar la columna de salida
+        self.output_column_window = Toplevel(self.root)
+        self.output_column_window.title("Select Output Column")
+
+        self.output_column_window.configure(bg="#2c3e50")
+
+        # Variable para almacenar la selección de columna de salida
+        self.output_column_var = ctk.StringVar(value="")  # Almacena la columna seleccionada
+
+        # Crear radiobuttons para cada columna
+        for idx, col in enumerate(self.data_table["columns"]):
+            radiobutton = ctk.CTkRadioButton(self.output_column_window, 
+                                            text=col, 
+                                            variable=self.output_column_var, 
+                                            value=col,  # Cada radiobutton tiene un valor único (la columna)
+                                            text_color="white",
+                                            fg_color="white",
+                                            hover_color="#444444",
+                                            border_width_checked=3.5)
+            radiobutton.pack(anchor="w")
+
+            # Si ya hay una columna de salida seleccionada, marcarla
+            if col == self.output_column:
+                self.output_column_var.set(col)
+
+        # Botón para confirmar la selección
+        confirm_button = ctk.CTkButton(self.output_column_window,text="Confirm Selection", command=self.confirm_output_column)                               
+        confirm_button.pack(pady=10)
+
+    def confirm_output_column(self):
+        # Obtener la columna seleccionada
+        selected_output_column = self.output_column_var.get()
+        if selected_output_column:
+            messagebox.showinfo("Output Column Selected", f"Selected Output Column: {selected_output_column}")
+            self.output_column = selected_output_column  # Almacenar la columna seleccionada como atributo de clase
+            self.output_column_window.destroy()
+            self.output_column_label.configure(text=f"Output Column: {self.output_column}")
+            self.create_model_button.configure(state="normal")
+
+        else:
+            messagebox.showwarning("No Column Selected", "Please select an output column.")
 
     def create_model(self):
         pass
