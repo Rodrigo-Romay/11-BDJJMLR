@@ -197,11 +197,19 @@ class GUI:
             command=self.save_model,
             **button_style
         )
-        self.model = Model(self.save_button)
 
         self.save_button.pack(pady=10, fill="x", padx=10)
         self.save_button.configure(state="disabled")
 
+        self.load_model_button = ctk.CTkButton(
+            self.sidebar,
+            text="Load Model",
+            command=self.load_model,
+            **button_style
+        )
+        self.model = Model(self.save_button, self.load_model_button)
+
+        self.load_model_button.pack(pady=10, fill="x", padx=10)
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
         self.main_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
@@ -307,7 +315,7 @@ class GUI:
             font=("Roboto", 12),
             text_color="#7f8c8d"
         )
-        self.file_path_label.grid(row=3, column=0, sticky="w", padx=10, pady=7)
+        self.file_path_label.grid(row=2, column=1, sticky="w", padx=10, pady=7)
 
         # === Etiquetas para columnas de entrada y salida ===
         self.input_columns_label = self.create_label(
@@ -316,7 +324,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.input_columns_label.grid(row=4, column=0, sticky="w", padx=10, pady=7)
+        self.input_columns_label.grid(row=3, column=0, sticky="w", padx=10, pady=(5, 5))
 
         self.output_column_label = self.create_label(
             self.bottom_section,
@@ -324,7 +332,39 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(2, 2))
+        self.output_column_label.grid(row=3, column=1, sticky="w", padx=10, pady=(5, 5))
+
+        self.formula_label = self.create_label(
+            self.bottom_section,
+            "Formula: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.formula_label.grid(row=4, column=0, sticky="w", padx=10, pady=(5, 5))
+
+        self.mse_label = self.create_label(
+            self.bottom_section,
+            "MSE: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.mse_label.grid(row=4, column=1, sticky="w", padx=10, pady=(5, 5))
+
+        self.r2_label = self.create_label(
+            self.bottom_section,
+            "R2: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.r2_label.grid(row=5, column=0, sticky="w", padx=10, pady=(5, 5))
+
+        self.load_description_label = self.create_label(
+            self.bottom_section,
+            "Description: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.load_description_label.grid(row=5, column=1, sticky="w", padx=10, pady=(5, 5))
 
         self.bottom_section.grid_columnconfigure(0, weight=1)
         self.bottom_section.grid_columnconfigure(1, weight=1)
@@ -404,6 +444,11 @@ class GUI:
 
     def save_model(self):
         self.model.save_model()
+
+    def load_model(self):
+        self.model.load_model(self.input_columns_label,self.output_column_label,self.formula_label,self.load_description_label,self.mse_label,self.r2_label)
+
+
 
     def save_description(self):
         description = self.description_entry.get()

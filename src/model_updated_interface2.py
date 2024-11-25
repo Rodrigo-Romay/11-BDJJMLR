@@ -8,7 +8,7 @@ from tkinter import messagebox, filedialog
 
 
 class Model:
-    def __init__(self, save_button):
+    def __init__(self, save_button, load_model_button):
         self.model_formula = {}
         self.model_metrics = {}
         self.description_saved = {}
@@ -17,7 +17,8 @@ class Model:
         self.data_table_df = None
         self.model = None
         self.save_button = save_button
-        self.description_saved = None
+        self.load_model_button = load_model_button
+
 
     def create_model(self, columns_selected, output_column, data_table_df):
         self.columns_selected = columns_selected
@@ -102,7 +103,7 @@ class Model:
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
-    def load_model(self):
+    def load_model(self,input_columns_label,output_column_label,formula_label,load_description_label,mse_label,r2_label):
         file_path = filedialog.askopenfilename(
             title="Select Model File",
             filetypes=[("PFL files", "*.pkl"), ("Joblib files", "*.joblib")]
@@ -117,7 +118,25 @@ class Model:
                 else:
                     raise ValueError("Unsupported file format.")
 
-                self.update_interface_with_model(model_data)
+                self.model = model_data.get("model")
+                self.model_formula = model_data.get("formula")
+                self.columns_selected = model_data.get("input_columns")
+                self.output_column = model_data.get("output_column")
+                self.model_metrics = model_data.get("metrics")
+                self.description_saved = model_data.get("description", None)
+
+                formula = self.model_formula.get("formula", "Formula not found")
+                r2 = self.model_metrics.get("r2", "N/A")
+                mse = self.model_metrics.get("mse", "N/A")
+                description = self.description_saved or "No description saved."
+                
+                input_columns_label.configure(text=f"Input Columns: {', '.join(model_data['input_columns'])}")
+                output_column_label.configure(text=f"Output Column: {model_data['output_column']}")
+                formula_label.configure(text=f"Formula: {formula}")
+                load_description_label.configure(text=f"Description: {description}")
+                mse_label.configure(text=f"MSE: {mse}")
+                r2_label.configure(text=f"R2: {r2}")
+                
                 messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
             except Exception as e:
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
