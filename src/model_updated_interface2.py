@@ -63,7 +63,7 @@ class Model:
         plt.xlabel(self.columns_selected[0])
         plt.ylabel(self.output_column)
         plt.title("Linear Regression Model (2D)")
-        plt.legend()
+        plt.legend(loc='upper right')
         plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
         plt.show()
 
@@ -77,7 +77,7 @@ class Model:
         ax.set_zlabel(self.output_column)
         ax.set_title("Linear Regression Model (3D)")
         plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
-        plt.legend()
+        plt.legend(loc='upper right')
         plt.show()
 
     def save_model(self):
