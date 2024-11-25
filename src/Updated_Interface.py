@@ -4,7 +4,6 @@ from read_file import DataImport
 from preprocess_updated_interface2 import Preprocess
 from model_updated_interface2 import Model
 from columns_updated_interface2 import Columns
-import time
 
 
 class GUI:
@@ -13,6 +12,7 @@ class GUI:
         self.root.title("Trendify")
         self._file = None
         self.columns_selected = []
+        self.columns_select=None
         self.output_column = None
         self.data_table_df = None
         self.description_saved = ""
@@ -67,9 +67,6 @@ class GUI:
     def hide_loading_screen(self):
         self.loading_frame.grid_forget()
         self.progress_bar.stop()
-
-    def _load_file(self):
-        self.hide_loading_screen()
 
     def create_title_bar(self):
         """Top title bar with the app name."""
@@ -161,8 +158,6 @@ class GUI:
         self.constant_entry.pack(pady=10, fill="x")
         self.constant_entry.configure(state="disabled")
         self.constant_entry.pack_forget()
-        self.constant_entry.bind("<Return>", self.apply_constant_fill)
-        self.root.bind("<Escape>", self.hide_constant_entry)
 
         self.select_columns_button = ctk.CTkButton(
             self.sidebar,
@@ -376,7 +371,6 @@ class GUI:
             filetypes=[("CSV Files", "*.csv"), ("Excel Files",
                                                 "*.xlsx *.xls"), ("SQLite Files", "*.db *.sqlite")]
         )
-        self.show_loading_screen()
         if file_path:
             self._file = file_path
             try:
@@ -384,6 +378,7 @@ class GUI:
                 data_importer.file_type()
                 data = data_importer._data
                 if not data.empty:
+                    self.show_loading_screen()
                     self.data_table_df = data
                     self.display_data(data)
                     self.preprocess_button.configure(state="normal")
@@ -399,7 +394,7 @@ class GUI:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except Exception as e:
                 messagebox.showerror("Error", f"Error while loading file: {e}")
-        self.root.after(1200, self._load_file)
+        self.root.after(600, self.hide_loading_screen)
 
     def display_data(self, data):
         self.data_table.delete(*self.data_table.get_children())
@@ -414,11 +409,11 @@ class GUI:
     def handle_null_option(self, option):
         self.show_loading_screen()
         self.preprocess.handle_null_option(option)
-        self.root.after(500, self._load_file)
+        self.root.after(500, self.hide_loading_screen)
 
     def preprocess_data(self):
         self.preprocess = Preprocess(self.data_table_df, self.null_option_menu, self.display_data,
-                                     self.constant_entry, self.select_columns_button, self.select_output_button, self.preprocess_button)
+                                     self.constant_entry, self.select_columns_button, self.select_output_button, self.preprocess_button, self.root)
         self.preprocess.preprocess_data()
 
     def hide_constant_entry(self):
@@ -428,11 +423,13 @@ class GUI:
         self.preprocess.apply_constant_fill()
 
     def select_columns(self):
-        self.columns_select = Columns(self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
+        if not self.columns_select:
+            self.columns_select = Columns(self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
         self.columns_select.select_columns()
 
     def select_output_column(self):
-        self.columns_select.select_output_column()
+        if self.columns_select:  
+            self.columns_select.select_output_column()
 
     def get_selected_columns(self):
         self.columns_selected = self.columns_select.columns_selected
@@ -453,4 +450,3 @@ class GUI:
     def save_description(self):
         description = self.description_entry.get()
         self.model.save_description(description)
-        self.root.after(500, self._load_file)
