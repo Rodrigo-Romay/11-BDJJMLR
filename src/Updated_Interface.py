@@ -4,6 +4,7 @@ from read_file import DataImport
 from preprocess_updated_interface2 import Preprocess
 from model_updated_interface2 import Model
 from columns_updated_interface2 import Columns
+import time
 
 
 class GUI:
@@ -44,6 +45,31 @@ class GUI:
         self.create_sidebar()
         self.create_main_section()
         self.create_bottom_section()
+        self.create_loading_screen()
+
+    def create_loading_screen(self):
+        """Creates the loading screen with a progress bar."""
+        self.loading_frame = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
+        self.loading_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+        self.loading_frame.grid_forget()  # Initially hidden
+
+        self.loading_label = self.create_label(self.loading_frame, "Loading...", font=("Roboto", 30, "bold"), text_color="grey")
+        self.loading_label.pack(pady=90)
+
+        self.progress_bar = ctk.CTkProgressBar(self.loading_frame, width=300)
+        self.progress_bar.pack(pady=20)
+
+    def show_loading_screen(self):
+        self.loading_frame.grid(row=1, column=1, sticky="nsew", padx=10, pady=10)
+        self.progress_bar.set(0) 
+        self.progress_bar.start()
+
+    def hide_loading_screen(self):
+        self.loading_frame.grid_forget()
+        self.progress_bar.stop()
+
+    def _load_file(self):
+        self.hide_loading_screen()
 
     def create_title_bar(self):
         """Top title bar with the app name."""
@@ -300,7 +326,6 @@ class GUI:
         )
         self.output_column_label.grid(row=4, column=1, sticky="w", padx=10, pady=(2, 2))
 
-        # Configuración de las columnas y filas
         self.bottom_section.grid_columnconfigure(0, weight=1)
         self.bottom_section.grid_columnconfigure(1, weight=1)
         self.bottom_section.grid_rowconfigure(5, weight=0)
@@ -311,6 +336,7 @@ class GUI:
             filetypes=[("CSV Files", "*.csv"), ("Excel Files",
                                                 "*.xlsx *.xls"), ("SQLite Files", "*.db *.sqlite")]
         )
+        self.show_loading_screen()
         if file_path:
             self._file = file_path
             try:
@@ -333,10 +359,12 @@ class GUI:
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except Exception as e:
                 messagebox.showerror("Error", f"Error while loading file: {e}")
+        self.root.after(1200, self._load_file)
 
     def display_data(self, data):
         self.data_table.delete(*self.data_table.get_children())
         self.data_table["columns"] = list(data.columns)
+        
         for col in data.columns:
             self.data_table.heading(col, text=col, anchor="center")
             self.data_table.column(col, anchor="center")
@@ -344,7 +372,9 @@ class GUI:
             self.data_table.insert("", "end", values=list(row))
 
     def handle_null_option(self, option):
+        self.show_loading_screen()
         self.preprocess.handle_null_option(option)
+        self.root.after(500, self._load_file)
 
     def preprocess_data(self):
         self.preprocess = Preprocess(self.data_table_df, self.null_option_menu, self.display_data,
@@ -378,3 +408,4 @@ class GUI:
     def save_description(self):
         description = self.description_entry.get()
         self.model.save_description(description)
+        self.root.after(500, self._load_file)
