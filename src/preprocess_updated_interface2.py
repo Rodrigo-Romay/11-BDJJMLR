@@ -2,7 +2,7 @@ from tkinter import messagebox
 
 
 class Preprocess():
-    def __init__(self, data_table_df, null_option_menu, display_data, constant_entry, select_columns_button, select_output_button, preprocess_button):
+    def __init__(self, data_table_df, null_option_menu, display_data, constant_entry, select_columns_button, select_output_button, preprocess_button, root):
         self.data_table_df = data_table_df
         self.null_option_menu = null_option_menu
         self.display_data = display_data
@@ -10,6 +10,9 @@ class Preprocess():
         self.select_columns_button = select_columns_button
         self.select_output_button = select_output_button
         self.preprocess_button = preprocess_button
+        self.root = root
+        self.root.bind("<Escape>", self.hide_constant_entry)
+        self.root.bind("<Return>", self.enter_key_handler)
 
     def preprocess_data(self):
         if self.data_table_df is not None:
@@ -81,6 +84,10 @@ class Preprocess():
     def hide_constant_entry(self, event=None):
         self.constant_entry.pack_forget()
         self.constant_entry.configure(state="disabled")
+
+    def enter_key_handler(self, event=None):
+        if self.constant_entry.winfo_viewable():
+            self.apply_constant_fill(event)
 
     def apply_constant_fill(self, event=None):
         confirm = messagebox.askyesno("Caution", "Are you sure to proceed?")
