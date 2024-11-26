@@ -24,7 +24,7 @@ class GUI:
         ctk.set_default_color_theme("blue")
 
         # Layout configuration
-        self.root.grid_columnconfigure(0, weight=1, minsize=300)  # Sidebar
+        self.root.grid_columnconfigure(0, weight=1, minsize=450)  # Sidebar
         self.root.grid_columnconfigure(1, weight=3)  # Main content
         self.root.grid_rowconfigure(0, weight=1)  # Title
         self.root.grid_rowconfigure(1, weight=6)  # Main content
@@ -94,6 +94,9 @@ class GUI:
         self.sidebar = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
         self.sidebar.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
+        button_frame = ctk.CTkFrame(self.sidebar, fg_color="white", corner_radius=15)
+        button_frame.pack(pady=10, fill="x", padx=10)
+
         # Add buttons to the sidebar
         button_style = {
             "corner_radius": 8,
@@ -104,14 +107,23 @@ class GUI:
         }
 
         self.load_button = ctk.CTkButton(
-            self.sidebar,
+            button_frame,
             text="OPEN FILE",
             command=self.load_file,
             **button_style
         )
         self.load_button.configure(fg_color="#718093", hover_color="#b2bec3")
-        self.load_button.pack(pady=10, fill="x", padx=10)
-
+        self.load_button.pack(side="left", expand=True, padx=5)
+        
+        self.load_model_button = ctk.CTkButton(
+            button_frame,
+            text="Load Model",
+            command=self.load_model,
+            **button_style
+        )
+        self.load_model_button.configure(fg_color="#718093", hover_color="#b2bec3")
+        self.load_model_button.pack(side="left", expand=True, padx=5)
+        
         self.preprocess_button = ctk.CTkButton(
             self.sidebar,
             text="Preprocess Data",
@@ -195,16 +207,8 @@ class GUI:
 
         self.save_button.pack(pady=10, fill="x", padx=10)
         self.save_button.configure(state="disabled")
-
-        self.load_model_button = ctk.CTkButton(
-            self.sidebar,
-            text="Load Model",
-            command=self.load_model,
-            **button_style
-        )
         self.model = Model(self.save_button, self.load_model_button)
 
-        self.load_model_button.pack(pady=10, fill="x", padx=10)
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
         self.main_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
@@ -444,8 +448,6 @@ class GUI:
 
     def load_model(self):
         self.model.load_model(self.input_columns_label,self.output_column_label,self.formula_label,self.load_description_label,self.mse_label,self.r2_label)
-
-
 
     def save_description(self):
         description = self.description_entry.get()
