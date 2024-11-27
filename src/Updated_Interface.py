@@ -139,7 +139,7 @@ class GUI:
 
         self.null_handling_label = self.create_label(
             self.null_handling_frame,
-            "Handle Missing Values:",
+            "Handle Null Values:",
             font=("Roboto", 14, "bold"),
             text_color="#34495e"
         )
@@ -148,15 +148,18 @@ class GUI:
         self.null_handling_option = ctk.StringVar(value="Select an option")
 
         self.null_option_menu = ctk.CTkOptionMenu(
-            self.null_handling_frame,
-            variable=self.null_handling_option,
-            values=["Delete rows with nulls", "Fill with mean",
-                    "Fill with median", "Fill with constant"],
-            command=self.handle_null_option,
-            button_color="#2ecc71",
-            fg_color="#ecf0f1",
-            text_color="#34495e",
-            corner_radius=8,
+        self.null_handling_frame,
+        variable=self.null_handling_option,
+        values=["Delete rows with nulls", "Fill with mean", "Fill with median", "Fill with constant"],
+        command=self.handle_null_option,
+        button_color="#2ecc71",  
+        button_hover_color="#27ae60",  
+        fg_color="#ecf0f1",  
+        text_color="#34495e",  
+        dropdown_fg_color="white", 
+        dropdown_hover_color="#ecf0f1",  
+        dropdown_text_color="#2c3e50",  
+        corner_radius=10  
         )
         self.null_option_menu.pack(pady=10, fill="x")
         self.null_option_menu.configure(state="disabled")
@@ -441,7 +444,7 @@ class GUI:
 
     def create_model(self):
         self.get_selected_columns()
-        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df)
+        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df, formula_label=self.formula_label, mse_label=self.mse_label, r2_label=self.r2_label)
 
     def save_model(self):
         self.model.save_model()
