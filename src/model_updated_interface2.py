@@ -20,7 +20,7 @@ class Model:
         self.load_model_button = load_model_button
 
 
-    def create_model(self, columns_selected, output_column, data_table_df):
+    def create_model(self, columns_selected, output_column, data_table_df,formula_label, mse_label, r2_label):
         self.columns_selected = columns_selected
         self.output_column = output_column
         self.data_table_df = data_table_df
@@ -35,6 +35,9 @@ class Model:
             X = self.data_table_df[self.columns_selected].values
             y = self.data_table_df[self.output_column].values
             if not (np.issubdtype(X.dtype, np.number) and np.issubdtype(y.dtype, np.number)):
+                formula_label.configure(text="Formula: None")
+                mse_label.configure(text="MSE: None")
+                r2_label.configure(text="R2: None")
                 raise ValueError("Columns must contain numeric values.")
 
             self.model = LinearRegression()
@@ -42,10 +45,13 @@ class Model:
             y_pred = self.model.predict(X)
             r2 = self.model.score(X, y)
             mse = mean_squared_error(y, y_pred)
-            self.model_formula = {"formula": f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_}"}
+            self.model_formula = {"formula": f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_:.4f}"}
             self.model_metrics = {"r2": r2, "mse": mse}
 
-            messagebox.showinfo("Model Created", f"RÂ²: {r2:.4f}\nMSE: {mse:.4f}")
+            formula=f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_:.4f}"
+            formula_label.configure(text=f"Formula: {formula}")
+            mse_label.configure(text=f"MSE: {mse:.4f}")
+            r2_label.configure(text=f"R2: {r2:.4f}")
 
             if X.shape[1] == 1:
                 self.plot_model_2d(X, y, y_pred, r2, mse)
@@ -65,7 +71,7 @@ class Model:
         plt.ylabel(self.output_column)
         plt.title("Linear Regression Model (2D)")
         plt.legend(loc='upper right')
-        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
+        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, MSE = {mse:.4f}", fontsize=10, color="black")
         plt.show()
 
     def plot_model_3d(self, X, y, y_pred, r2, mse):
@@ -77,7 +83,7 @@ class Model:
         ax.set_ylabel(self.columns_selected[1])
         ax.set_zlabel(self.output_column)
         ax.set_title("Linear Regression Model (3D)")
-        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, ECM = {mse:.4f}", fontsize=10, color="black")
+        plt.suptitle(f"{self.output_column} = {self.model_formula['formula']}\nRÂ² = {r2:.4f}, MSE = {mse:.4f}", fontsize=10, color="black")
         plt.legend(loc='upper right')
         plt.show()
 
@@ -134,8 +140,8 @@ class Model:
                 output_column_label.configure(text=f"Output Column: {model_data['output_column']}")
                 formula_label.configure(text=f"Formula: {formula}")
                 load_description_label.configure(text=f"Description: {description}")
-                mse_label.configure(text=f"MSE: {mse}")
-                r2_label.configure(text=f"R2: {r2}")
+                mse_label.configure(text=f"MSE: {mse:.4f}")
+                r2_label.configure(text=f"R2: {r2:.4f}")
                 
                 messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
             except Exception as e:
