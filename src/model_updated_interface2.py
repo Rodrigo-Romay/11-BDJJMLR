@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error
 from tkinter import messagebox, filedialog
+import os
 
 
 class Model:
@@ -109,44 +110,66 @@ class Model:
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
-    def load_model(self,input_columns_label,output_column_label,formula_label,load_description_label,mse_label,r2_label):
+    def load_model(self, input_columns_label, output_column_label, formula_label, load_description_label, mse_label, r2_label):
+        # Abrir el cuadro de diálogo para seleccionar el archivo
         file_path = filedialog.askopenfilename(
             title="Select Model File",
             filetypes=[("PFL files", "*.pkl"), ("Joblib files", "*.joblib")]
-        )
+        )     
         if file_path:
+            if not os.path.exists(file_path):
+                raise FileNotFoundError(f"File {file_path} not found.")    
             try:
                 if file_path.endswith(".pkl"):
+                    # Intentar cargar un archivo .pkl
                     with open(file_path, 'rb') as file:
-                        model_data = pickle.load(file)
+                        try:
+                            model_data = pickle.load(file)
+                        except Exception as e:
+                            raise Exception(f"PickleError: Error al cargar el archivo pickle: {str(e)}")  
                 elif file_path.endswith(".joblib"):
-                    model_data = joblib.load(file_path)
+                    # Intentar cargar un archivo .joblib
+                    try:
+                        model_data = joblib.load(file_path)
+                    except Exception as e:
+                        raise Exception(f"JoblibError: Error al cargar el archivo joblib: {str(e)}")
                 else:
                     raise ValueError("Unsupported file format.")
-
+                # Asignar los valores desde el modelo cargado
                 self.model = model_data.get("model")
-                self.model_formula = model_data.get("formula")
-                self.columns_selected = model_data.get("input_columns")
-                self.output_column = model_data.get("output_column")
-                self.model_metrics = model_data.get("metrics")
+                self.model_formula = model_data.get("formula", {})
+                self.columns_selected = model_data.get("input_columns", [])
+                self.output_column = model_data.get("output_column", "")
+                self.model_metrics = model_data.get("metrics", {})
                 self.description_saved = model_data.get("description", None)
-
+                
+                # Definir los valores para fórmula, r2 y mse con valores predeterminados
                 formula = self.model_formula.get("formula", "Formula not found")
                 r2 = self.model_metrics.get("r2", "N/A")
                 mse = self.model_metrics.get("mse", "N/A")
-                description = self.description_saved or "No description saved."
-                
-                input_columns_label.configure(text=f"Input Columns: {', '.join(model_data['input_columns'])}")
-                output_column_label.configure(text=f"Output Column: {model_data['output_column']}")
+                description = self.description_saved or "No description saved."   
+                try:
+                    mse = float(mse) if mse != "N/A" else mse
+                    r2 = float(r2) if r2 != "N/A" else r2
+                except ValueError:
+                    mse = "N/A"
+                    r2 = "N/A"
+                input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+                output_column_label.configure(text=f"Output Column: {self.output_column}")
                 formula_label.configure(text=f"Formula: {formula}")
                 load_description_label.configure(text=f"Description: {description}")
-                mse_label.configure(text=f"MSE: {mse:.4f}")
-                r2_label.configure(text=f"R2: {r2:.4f}")
-                
-                messagebox.showinfo("Model Loaded", "Model loaded succesfully.")
+                if isinstance(mse, (int, float)):
+                    mse_label.configure(text=f"MSE: {mse:.4f}")
+                else:
+                    mse_label.configure(text=f"MSE: {mse}")                
+                if isinstance(r2, (int, float)):
+                    r2_label.configure(text=f"R2: {r2:.4f}")
+                else:
+                    r2_label.configure(text=f"R2: {r2}")                
+                messagebox.showinfo("Model Loaded", "Model loaded successfully.")           
             except Exception as e:
                 messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
-
+                
     def save_description(self, description_saved):
         self.description_saved = description_saved
         if self.description_saved:
