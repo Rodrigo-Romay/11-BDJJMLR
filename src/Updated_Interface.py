@@ -201,6 +201,14 @@ class GUI:
         self.create_model_button.pack(pady=10, fill="x", padx=10)
         self.create_model_button.configure(state="disabled")
 
+        self.predict_button = ctk.CTkButton(
+            self.sidebar,
+            text="Make Prediction",
+            command=self.save_model,
+            **button_style
+        )
+        self.predict_button.pack(pady=10, fill="x", padx=10)
+
         self.save_button = ctk.CTkButton(
             self.sidebar,
             text="Save Model",
