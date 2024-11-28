@@ -4,7 +4,7 @@ from read_file import DataImport
 from preprocess_updated_interface2 import Preprocess
 from model_updated_interface2 import Model
 from columns_updated_interface2 import Columns
-
+from predictions import Predictions
 
 class GUI:
     def __init__(self, root):
@@ -204,7 +204,7 @@ class GUI:
         self.predict_button = ctk.CTkButton(
             self.sidebar,
             text="Make Prediction",
-            command=self.save_model,
+            command=self.make_predictions,
             **button_style
         )
         self.predict_button.pack(pady=10, fill="x", padx=10)
@@ -453,12 +453,19 @@ class GUI:
     def create_model(self):
         self.get_selected_columns()
         self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df, formula_label=self.formula_label, mse_label=self.mse_label, r2_label=self.r2_label)
+        self.formula = self.model.model_formula
 
     def save_model(self):
         self.model.save_model()
+    
+    def make_predictions(self):
+        predictions = Predictions(self.formula,self.root)
+        predictions.predictions()
+
 
     def load_model(self):
         self.model.load_model(self.input_columns_label,self.output_column_label,self.formula_label,self.load_description_label,self.mse_label,self.r2_label)
+        self.formula = self.model.model_formula
 
     def save_description(self):
         description = self.description_entry.get()
