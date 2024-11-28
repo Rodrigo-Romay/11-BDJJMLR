@@ -201,13 +201,24 @@ class GUI:
         self.create_model_button.pack(pady=10, fill="x", padx=10)
         self.create_model_button.configure(state="disabled")
 
+        self.show_model_button = ctk.CTkButton(
+            self.sidebar,
+            text="Show Model",
+            command=self.show_model,
+            **button_style
+        )
+        self.show_model_button.pack(pady=10, fill="x", padx=10)
+        self.show_model_button.configure(state="disabled")
+
         self.predict_button = ctk.CTkButton(
             self.sidebar,
             text="Make Prediction",
             command=self.make_predictions,
             **button_style
         )
+        
         self.predict_button.pack(pady=10, fill="x", padx=10)
+        self.predict_button.configure(state="disabled")
 
         self.save_button = ctk.CTkButton(
             self.sidebar,
@@ -218,7 +229,7 @@ class GUI:
 
         self.save_button.pack(pady=10, fill="x", padx=10)
         self.save_button.configure(state="disabled")
-        self.model = Model(self.save_button, self.load_model_button)
+        self.model = Model(self.save_button, self.load_model_button, self.predict_button, self.show_model_button, self.preprocess_button, self.select_columns_button, self.select_output_button, self.null_option_menu, self.create_model_button)
 
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
@@ -396,10 +407,16 @@ class GUI:
                     self.show_loading_screen()
                     self.data_table_df = data
                     self.display_data(data)
+                    
                     self.preprocess_button.configure(state="normal")
                     self.null_option_menu.configure(state="disabled")
                     self.select_columns_button.configure(state="disabled")
                     self.select_output_button.configure(state="disabled")
+                    self.create_model_button.configure(state="disabled")
+                    self.save_button.configure(state="disabled")
+                    self.predict_button.configure(state="disabled")
+                    self.show_model_button.configure(state="disabled")
+
                     self.columns_selected = []
                     self.output_column = None
                     # Update file path label
@@ -452,8 +469,11 @@ class GUI:
 
     def create_model(self):
         self.get_selected_columns()
-        self.model.create_model(columns_selected=self.columns_selected,output_column=self.output_column, data_table_df=self.data_table_df, formula_label=self.formula_label, mse_label=self.mse_label, r2_label=self.r2_label)
+        self.model.create_model(self.columns_selected,self.output_column, self.data_table_df, self.formula_label, self.mse_label, self.r2_label)
         self.formula = self.model.model_formula
+    
+    def show_model(self):
+        self.model.show_model()
 
     def save_model(self):
         self.model.save_model()

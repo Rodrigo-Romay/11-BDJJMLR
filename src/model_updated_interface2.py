@@ -9,7 +9,7 @@ import os
 
 
 class Model:
-    def __init__(self, save_button, load_model_button):
+    def __init__(self, save_button, load_model_button, predict_button, show_model_button, preprocess_button, select_columns_button, select_output_button, null_option_menu, create_model_button):
         self.model_formula = {}
         self.model_metrics = {}
         self.description_saved = {}
@@ -19,12 +19,20 @@ class Model:
         self.model = None
         self.save_button = save_button
         self.load_model_button = load_model_button
+        self.predict_button=predict_button
+        self.show_model_button=show_model_button
+        self.preprocess_button=preprocess_button
+        self.select_columns_button=select_columns_button
+        self.select_output_button=select_output_button
+        self.null_option_menu=null_option_menu
+        self.create_model_button=create_model_button
 
 
-    def create_model(self, columns_selected, output_column, data_table_df,formula_label, mse_label, r2_label):
+    def create_model(self, columns_selected, output_column, data_table_df, formula_label, mse_label, r2_label):
         self.columns_selected = columns_selected
         self.output_column = output_column
         self.data_table_df = data_table_df
+
         if not self.description_saved:
             messagebox.showinfo("Reminder", "No description saved.")
 
@@ -39,6 +47,9 @@ class Model:
                 formula_label.configure(text="Formula: None")
                 mse_label.configure(text="MSE: None")
                 r2_label.configure(text="R2: None")
+                self.save_button.configure(state="disabled")
+                self.predict_button.configure(state="disabled")
+                self.show_model_button.configure(state="disabled")
                 raise ValueError("Columns must contain numeric values.")
 
             self.model = LinearRegression()
@@ -49,20 +60,41 @@ class Model:
             self.model_formula = {"formula": f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_:.4f}"}
             self.model_metrics = {"r2": r2, "mse": mse}
 
-            formula=f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_:.4f}"
+            formula = f"{self.output_column} = {self.model.coef_} * {self.columns_selected} + {self.model.intercept_:.4f}"
             formula_label.configure(text=f"Formula: {formula}")
             mse_label.configure(text=f"MSE: {mse:.4f}")
             r2_label.configure(text=f"R2: {r2:.4f}")
 
+            self.save_button.configure(state="normal")
+            self.predict_button.configure(state="normal")
+            self.show_model_button.configure(state="normal")
+
+            messagebox.showinfo("Model Created", "Model created successfully.")
+        except Exception as e:
+            messagebox.showerror("Model Error", f"An error occurred: {e}")
+
+    def show_model(self):
+        if not self.model:
+            messagebox.showerror("Error", "No model available to plot. Create a model first.")
+            return
+
+        X = self.data_table_df[self.columns_selected].values
+        y = self.data_table_df[self.output_column].values
+
+        y_pred = self.model.predict(X)
+        r2 = self.model_metrics.get("r2", 0)
+        mse = self.model_metrics.get("mse", 0)
+
+        try:
             if X.shape[1] == 1:
                 self.plot_model_2d(X, y, y_pred, r2, mse)
             elif X.shape[1] == 2:
                 self.plot_model_3d(X, y, y_pred, r2, mse)
             else:
-                messagebox.showinfo("Model Created", "Model created successfully, but cannot plot with more than 2 features.")
-            self.save_button.configure(state="normal")
+                messagebox.showinfo("Plot Error", "Cannot plot with more than 2 features.")
         except Exception as e:
-            messagebox.showerror("Model Error", f"An error occurred: {e}")
+            messagebox.showerror("Plot Error", f"An error occurred while plotting: {e}")
+
 
     def plot_model_2d(self, X, y, y_pred, r2, mse):
         plt.figure(figsize=(10, 6))
@@ -141,6 +173,15 @@ class Model:
             self.output_column = model_data.get("output_column", "")
             self.model_metrics = model_data.get("metrics", {})
             self.description_saved = model_data.get("description", None)
+
+            self.predict_button.configure(state="normal")
+            self.preprocess_button.configure(state="disabled")
+            self.select_columns_button.configure(state="disabled")
+            self.select_output_button.configure(state="disabled")
+            self.null_option_menu.configure(state="disabled")
+            self.create_model_button.configure(state="disabled")
+            self.show_model_button.configure(state="disabled")
+            self.save_button.configure(state="disabled")
                 
             # Definir los valores para fórmula, r2 y mse con valores predeterminados
             formula = self.model_formula if isinstance(self.model_formula, str) else self.model_formula.get("formula", "Formula not found")
