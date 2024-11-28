@@ -78,6 +78,37 @@ class Predictions:
             )
             col_entry.pack(fill="x", padx=10, pady=2)
 
+        # Etiqueta para el título "Predicted Value"
+        predicted_label = ctk.CTkLabel(
+            options_frame,
+            text="Predicted Value",
+            text_color="#2c3e50",
+            font=("Helvetica", 12)
+        )
+        predicted_label.pack(anchor="w", padx=10, pady=2)
+
+        # Frame para resaltar la casilla del resultado
+        result_frame = ctk.CTkFrame(
+            options_frame,
+            fg_color="#bdc3c7",  # Color gris oscuro para el marco
+            corner_radius=10
+        )
+        result_frame.pack(fill="x", padx=10, pady=10)
+
+        # Campo de entrada para mostrar el resultado
+        self.result_var = ctk.StringVar(value="None")  # Texto inicial es "None"
+        self.result_entry = ctk.CTkEntry(
+            result_frame,
+            textvariable=self.result_var,
+            font=("Helvetica", 14, "bold"),
+            fg_color="#ecf0f1",  # Fondo claro para el campo de entrada
+            state="readonly",  # Modo de solo lectura
+            text_color="#27ae60",  # Texto en verde
+            justify="center"  # Centrar el texto dentro del campo
+        )
+        self.result_entry.pack(fill="x", padx=5, pady=5)
+
+
         # Botón para calcular predicción
         def calcular_prediccion():
             try:
@@ -87,10 +118,8 @@ class Predictions:
                 # Calcular la predicción: sum(coef * valor) + intercepto
                 prediccion = sum(coef * valor for coef, valor in zip(coefficients, valores)) + formula_intercept
                 
-                # Mostrar predicción
-                messagebox.showinfo("Prediction Result", f"The predicted value is: {prediccion:.4f}")
-
-                self.predictions_window.destroy()
+                # Mostrar predicción en el campo de entrada
+                self.result_var.set(f"{prediccion:.4f}")
             except Exception as e:
                 messagebox.showerror("Error", f"An error occurred: {e}")
 
@@ -103,7 +132,7 @@ class Predictions:
         )
         calcular_button.pack(pady=10)
 
-# Ejemplo de uso
+        # Ejemplo de uso
 if __name__ == "__main__":
     root = ctk.CTk()
     formula = {"formula": "median_income = [-2.28339800e-04 8.19880332e-05] * ['total_bedrooms', 'population'] + 3.8766"}
