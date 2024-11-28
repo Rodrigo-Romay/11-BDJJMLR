@@ -119,56 +119,53 @@ class Model:
         if file_path:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File {file_path} not found.")    
-            try:
-                if file_path.endswith(".pkl"):
+            elif file_path.endswith(".pkl"):
                     # Intentar cargar un archivo .pkl
                     with open(file_path, 'rb') as file:
                         try:
                             model_data = pickle.load(file)
                         except Exception as e:
                             raise Exception(f"PickleError: Error al cargar el archivo pickle: {str(e)}")  
-                elif file_path.endswith(".joblib"):
+            elif file_path.endswith(".joblib"):
                     # Intentar cargar un archivo .joblib
                     try:
                         model_data = joblib.load(file_path)
                     except Exception as e:
                         raise Exception(f"JoblibError: Error al cargar el archivo joblib: {str(e)}")
-                else:
-                    raise ValueError("Unsupported file format.")
-                # Asignar los valores desde el modelo cargado
-                self.model = model_data.get("model")
-                self.model_formula = model_data.get("formula", {})
-                self.columns_selected = model_data.get("input_columns", [])
-                self.output_column = model_data.get("output_column", "")
-                self.model_metrics = model_data.get("metrics", {})
-                self.description_saved = model_data.get("description", None)
+            else:
+                raise ValueError("Unsupported file format.")
+            # Asignar los valores desde el modelo cargado
+            self.model = model_data.get("model")
+            self.model_formula = model_data.get("formula", {})
+            self.columns_selected = model_data.get("input_columns", [])
+            self.output_column = model_data.get("output_column", "")
+            self.model_metrics = model_data.get("metrics", {})
+            self.description_saved = model_data.get("description", None)
                 
-                # Definir los valores para fórmula, r2 y mse con valores predeterminados
-                formula = self.model_formula.get("formula", "Formula not found")
-                r2 = self.model_metrics.get("r2", "N/A")
-                mse = self.model_metrics.get("mse", "N/A")
-                description = self.description_saved or "No description saved."   
-                try:
-                    mse = float(mse) if mse != "N/A" else mse
-                    r2 = float(r2) if r2 != "N/A" else r2
-                except ValueError:
-                    mse = "N/A"
-                    r2 = "N/A"
-                input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
-                output_column_label.configure(text=f"Output Column: {self.output_column}")
-                formula_label.configure(text=f"Formula: {formula}")
-                load_description_label.configure(text=f"Description: {description}")
-                if isinstance(mse, (int, float)):
-                    mse_label.configure(text=f"MSE: {mse:.4f}")
-                else:
-                    mse_label.configure(text=f"MSE: {mse}")                
-                if isinstance(r2, (int, float)):
-                    r2_label.configure(text=f"R2: {r2:.4f}")
-                else:
-                    r2_label.configure(text=f"R2: {r2}")                
-                messagebox.showinfo("Model Loaded", "Model loaded successfully.")           
-            except Exception as e:
-                messagebox.showerror("Load Error", f"An error occurred while loading the model: {str(e)}")
+            # Definir los valores para fórmula, r2 y mse con valores predeterminados
+            formula = self.model_formula if isinstance(self.model_formula, str) else self.model_formula.get("formula", "Formula not found")
+            r2 = self.model_metrics.get("r2", "N/A")
+            mse = self.model_metrics.get("mse", "N/A")
+            description = self.description_saved or "No description saved."   
+            try:
+                mse = float(mse) if mse != "N/A" else mse
+                r2 = float(r2) if r2 != "N/A" else r2
+            except ValueError:
+                mse = "N/A"
+                r2 = "N/A"
+            input_columns_label.configure(text=f"Input Columns: {', '.join(self.columns_selected)}")
+            output_column_label.configure(text=f"Output Column: {self.output_column}")
+            formula_label.configure(text=f"Formula: {formula}")
+            load_description_label.configure(text=f"Description: {description}")
+            if isinstance(mse, (int, float)):
+                mse_label.configure(text=f"MSE: {mse:.4f}")
+            else:
+                mse_label.configure(text=f"MSE: {mse}")                
+            if isinstance(r2, (int, float)):
+                r2_label.configure(text=f"R2: {r2:.4f}")
+            else:
+                r2_label.configure(text=f"R2: {r2}")                
+            messagebox.showinfo("Model Loaded", "Model loaded successfully.")
                 
     def save_description(self, description_saved):
         self.description_saved = description_saved
