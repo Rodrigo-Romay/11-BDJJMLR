@@ -1,11 +1,12 @@
-from tkinter import Toplevel, IntVar, messagebox
+from tkinter import Toplevel, StringVar, messagebox
 import customtkinter as ctk
 
 
 class Predictions:
-    def __init__(self, formula, root):
+    def __init__(self, formula, root, result_prediction_label):
         self.formula = formula
         self.root = root
+        self.result_prediction_label = result_prediction_label
 
     def predictions(self):
         # Separar la fórmula
@@ -14,14 +15,14 @@ class Predictions:
         # Extraer los coeficientes
         coef_part = formula_sep.split('=')[1].split('*')[0].strip()  # Toma la parte entre "=" y "*"
         coef_str = coef_part.strip('[]')  # Elimina los corchetes
-        coefficients = [float(x) for x in coef_str.split()]
+        self.coefficients = [float(x) for x in coef_str.split()]
         # Extraer las columnas
         columns_part = formula_sep.split('*')[1].split('+')[0].strip()  # Toma la parte entre "*" y "+"
         columns_str = columns_part.strip("[]")  # Elimina los corchetes
-        columns = [col.strip(" '") for col in columns_str.split(',')]  # Limpia y separa las columnas
+        self.columns = [col.strip(" '") for col in columns_str.split(',')]  # Limpia y separa las columnas
 
         # Extraer el intercepto
-        formula_intercept = float(formula_sep.split('+')[-1].strip())  # Intercepto final
+        self.formula_intercept = float(formula_sep.split('+')[-1].strip())  # Intercepto final
 
         # Crear ventana de predicciones
         self.predictions_window = Toplevel(self.root)
@@ -57,8 +58,8 @@ class Predictions:
         self.column_vars = {}
 
         # Crear entradas dinámicamente para cada columna
-        for col in columns:
-            var = IntVar()  # Cambiar a DoubleVar() si necesitas decimales
+        for col in self.columns:
+            var = StringVar()  # Cambiar a DoubleVar() si necesitas decimales
             self.column_vars[col] = var
 
             # Etiqueta para el nombre de la columna
@@ -96,7 +97,7 @@ class Predictions:
         result_frame.pack(fill="x", padx=10, pady=10)
 
         # Campo de entrada para mostrar el resultado
-        self.result_var = ctk.StringVar(value="None")  # Texto inicial es "None"
+        self.result_var = StringVar(value="")  # Texto inicial es "None"
         self.result_entry = ctk.CTkEntry(
             result_frame,
             textvariable=self.result_var,
@@ -107,35 +108,42 @@ class Predictions:
             justify="center"  # Centrar el texto dentro del campo
         )
         self.result_entry.pack(fill="x", padx=5, pady=5)
-
-
-        # Botón para calcular predicción
-        def calcular_prediccion():
-            try:
-                # Recoger los valores introducidos
-                valores = [self.column_vars[col].get() for col in columns]
-                
-                # Calcular la predicción: sum(coef * valor) + intercepto
-                prediccion = sum(coef * valor for coef, valor in zip(coefficients, valores)) + formula_intercept
-                
-                # Mostrar predicción en el campo de entrada
-                self.result_var.set(f"{prediccion:.4f}")
-            except Exception as e:
-                messagebox.showerror("Error", f"An error occurred: {e}")
-
-        calcular_button = ctk.CTkButton(
+        
+        calculate_button = ctk.CTkButton(
             options_frame,
             text="Calculate Prediction",
-            command=calcular_prediccion,
+            command=self.calculate_prediction,
             fg_color="#27ae60",  # Verde
             hover_color="#2ecc71"
         )
-        calcular_button.pack(pady=10)
+        calculate_button.pack(pady=10)
 
-        # Ejemplo de uso
-if __name__ == "__main__":
-    root = ctk.CTk()
-    formula = {"formula": "median_income = [-2.28339800e-04 8.19880332e-05] * ['total_bedrooms', 'population'] + 3.8766"}
-    app = Predictions(formula, root)
-    app.predictions()
-    root.mainloop()
+        # Botón para cerrar la ventana de predicciones
+        close_button = ctk.CTkButton(
+            options_frame,
+            text="Close",
+            command=self.predictions_window.destroy,
+            fg_color="#e74c3c",  # Rojo
+            hover_color="#c0392b"
+        )
+        close_button.pack(pady=(5, 10))
+
+
+        # Botón para calcular predicción
+    def calculate_prediction(self):
+        try:
+            # Recoger los valores introducidos
+            values = [self.column_vars[col].get() for col in self.columns]
+                
+            if any(v==0 for v in values):
+                raise ValueError("Please enter all values for the variables.")
+            # Convertir a float solo si no está vacío
+            float_values = [float(v) if v else 0.0 for v in values]
+            # Calcular la predicción: sum(coef * valor) + intercepto
+            prediction = sum(coef * valor for coef, valor in zip(self.coefficients, float_values)) + self.formula_intercept                
+            self.result_prediction_label.configure(text=f"Result: {prediction}")
+                
+            # Mostrar predicción en el campo de entrada
+            self.result_var.set(f"{prediction:.4f}")
+        except Exception as e:
+            messagebox.showerror("Error", f"An error occurred: {e}")
