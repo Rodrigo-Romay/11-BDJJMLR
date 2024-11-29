@@ -145,5 +145,9 @@ class Predictions:
                 
             # Mostrar predicción en el campo de entrada
             self.result_var.set(f"{prediction:.4f}")
+        except ValueError as ve:
+            self.predictions_window.destroy()
+            messagebox.showerror("Error",f"The value must be float or integer")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
+        
