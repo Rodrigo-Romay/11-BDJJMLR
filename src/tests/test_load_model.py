@@ -28,10 +28,15 @@ def test_load_valid_file(setup_model, tmpdir):
     with open(model_file, "wb") as f:
         pickle.dump(model_data, f)
 
-    # Mock para devolver path temporal
-    with patch("tkinter.filedialog.askopenfilename", return_value=str(model_file)):
+    # Mock para devolver path temporal y evitar problemas con messagebox
+    with patch("tkinter.filedialog.askopenfilename", return_value=str(model_file)), \
+         patch("tkinter.messagebox.showinfo") as mock_showinfo:
+        
         setup_model.load_model(Mock(), Mock(), Mock(), Mock(), Mock(), Mock())
-    
+        
+        # Verifica que se llamó correctamente showinfo
+        mock_showinfo.assert_called_once_with("Model Loaded", "Model loaded successfully.")
+
     # Compara si son iguales los datos cargados
     assert setup_model.model_formula == model_data["formula"], "La fórmula no se cargó correctamente."
     assert setup_model.model_metrics["mse"] == model_data["metrics"]["mse"], "The MSE value was not loaded correctly."

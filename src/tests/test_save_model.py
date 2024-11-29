@@ -29,7 +29,12 @@ def test_save_model(setup_model, tmpdir):
     # Mock the save file dialog to return a temporary file path
     model_file = tmpdir.join("saved_model.pkl")
     with patch("tkinter.filedialog.asksaveasfilename", return_value=str(model_file)):
-        setup_model.save_model()
+        # Mock messagebox to suppress UI interaction
+        with patch("tkinter.messagebox.showinfo") as mock_showinfo:
+            setup_model.save_model()
+
+            # Ensure showinfo was called with the expected message
+            mock_showinfo.assert_called_once_with("Model Saved", f"Model saved at {model_file}")
 
     # Verify that the file was created
     assert os.path.exists(model_file), "The model file was not created."
