@@ -7,13 +7,20 @@ import pickle
 def setup_model():
     save_button_mock = Mock()
     load_button_mock = Mock()
-    return Model(save_button_mock, load_button_mock)
+    predict_button_mock = Mock()
+    show_model_button_mock = Mock()
+    preprocess_button_mock = Mock()
+    select_columns_button_mock = Mock()
+    select_output_button_mock = Mock()
+    null_option_menu_mock = Mock()
+    create_model_button_mock = Mock()
+    return Model(save_button_mock, load_button_mock, predict_button_mock, show_model_button_mock, preprocess_button_mock, select_columns_button_mock, select_output_button_mock, null_option_menu_mock, create_model_button_mock)
 
 def test_load_valid_file(setup_model, tmpdir):
     model_data = {
         "formula": "y = 2x + 1",
         "description": "Test model",
-        "metrics": {"mse": 0.02, "r2": 0.98},  # Encapsular mse y r2 en 'metrics'
+        "metrics": {"mse": 0.02, "r2": 0.98},
         "input_columns": ["x"],
         "output_column": "y"
     }
@@ -24,7 +31,8 @@ def test_load_valid_file(setup_model, tmpdir):
     # Mock para devolver path temporal
     with patch("tkinter.filedialog.askopenfilename", return_value=str(model_file)):
         setup_model.load_model(Mock(), Mock(), Mock(), Mock(), Mock(), Mock())
-    #Compara si son iguales los datos cargados
+    
+    # Compara si son iguales los datos cargados
     assert setup_model.model_formula == model_data["formula"], "La fórmula no se cargó correctamente."
     assert setup_model.model_metrics["mse"] == model_data["metrics"]["mse"], "The MSE value was not loaded correctly."
     assert setup_model.model_metrics["r2"] == model_data["metrics"]["r2"], "The R2 value was not loaded correctly."

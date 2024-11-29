@@ -1,7 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
 from model_updated_interface2 import Model
-import pandas as pd
 import pickle
 import os
 
@@ -9,7 +8,14 @@ import os
 def setup_model():
     save_button_mock = Mock()
     load_button_mock = Mock()
-    return Model(save_button_mock, load_button_mock)
+    predict_button_mock = Mock()
+    show_model_button_mock = Mock()
+    preprocess_button_mock = Mock()
+    select_columns_button_mock = Mock()
+    select_output_button_mock = Mock()
+    null_option_menu_mock = Mock()
+    create_model_button_mock = Mock()
+    return Model(save_button_mock, load_button_mock, predict_button_mock, show_model_button_mock, preprocess_button_mock, select_columns_button_mock, select_output_button_mock, null_option_menu_mock, create_model_button_mock)
 
 def test_save_model(setup_model, tmpdir):
     """Test that a model can be saved correctly to a file."""
