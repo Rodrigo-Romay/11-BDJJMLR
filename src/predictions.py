@@ -131,23 +131,26 @@ class Predictions:
 
         # Botón para calcular predicción
     def calculate_prediction(self):
+        # Recoger los valores introducidos
+        values = [self.column_vars[col].get() for col in self.columns]
+        
+        # Validar los valores ingresados
+        self.validate_inputs(values)
+
         try:
-            # Recoger los valores introducidos
-            values = [self.column_vars[col].get() for col in self.columns]
-                
-            if any(v==0 for v in values):
-                raise ValueError("Please enter all values for the variables.")
-            # Convertir a float solo si no está vacío
-            float_values = [float(v) if v else 0.0 for v in values]
+            # Convertir a float los valores válidos
+            float_values = [float(v) for v in values]
+            
             # Calcular la predicción: sum(coef * valor) + intercepto
             prediction = sum(coef * valor for coef, valor in zip(self.coefficients, float_values)) + self.formula_intercept                
             self.result_prediction_label.configure(text=f"Result: {prediction}")
-                
+            
             # Mostrar predicción en el campo de entrada
             self.result_var.set(f"{prediction:.4f}")
-        except ValueError as ve:
-            self.predictions_window.destroy()
-            messagebox.showerror("Error",f"The value must be float or integer")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
-        
+
+    def validate_inputs(self, values):
+        # Comprobar si falta algún valor de entrada
+        if any(v.strip() == "" for v in values):  # Verificar si algún valor está vacío
+            raise ValueError("Please enter all values for the variables.")
