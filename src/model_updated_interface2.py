@@ -122,23 +122,33 @@ class Model:
 
     def save_model(self):
         file_path = filedialog.asksaveasfilename(
-            filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")])
+            filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")]
+        )
         if file_path:
             try:
+                if not (file_path.endswith(".pkl") or file_path.endswith(".joblib")):
+                    raise ValueError("Invalid file extension. Please use .pkl or .joblib.")
+
                 model_data = {
                     "model": self.model,  # Guardar el modelo
                     "formula": self.model_formula,
                     "input_columns": self.columns_selected,
                     "output_column": self.output_column,
                     "metrics": self.model_metrics,
-                    "description": self.description_saved
+                    "description": self.description_saved,
                 }
+
                 if file_path.endswith(".pkl"):
                     with open(file_path, "wb") as file:
                         pickle.dump(model_data, file)
                 elif file_path.endswith(".joblib"):
                     joblib.dump(model_data, file_path)
+
+                # Mostrar mensaje de éxito solo si no hubo errores
                 messagebox.showinfo("Model Saved", f"Model saved at {file_path}")
+
+            except ValueError as ve:
+                messagebox.showerror("Invalid Extension", str(ve))
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
