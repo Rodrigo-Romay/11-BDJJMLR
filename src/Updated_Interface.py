@@ -336,7 +336,7 @@ class GUI:
             font=("Roboto", 12),
             text_color="#7f8c8d"
         )
-        self.file_path_label.grid(row=2, column=1, sticky="w", padx=10, pady=7)
+        self.file_path_label.grid(row=1, column=1, sticky="w", padx=10, pady=7)
 
         # === Etiquetas para columnas de entrada y salida ===
         self.input_columns_label = self.create_label(
@@ -387,6 +387,14 @@ class GUI:
         )
         self.load_description_label.grid(row=5, column=1, sticky="w", padx=10, pady=(5, 5))
 
+        self.result_prediction_label= self.create_label(
+            self.bottom_section,
+            "Result prediction: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.result_prediction_label.grid(row=2, column=1, sticky="w", padx=10, pady=(5,5))
+        
         self.bottom_section.grid_columnconfigure(0, weight=1)
         self.bottom_section.grid_columnconfigure(1, weight=1)
         self.bottom_section.grid_rowconfigure(5, weight=0)
@@ -479,8 +487,8 @@ class GUI:
         self.model.save_model()
     
     def make_predictions(self):
-        predictions = Predictions(self.formula,self.root)
-        predictions.predictions()
+        self.predictions = Predictions(self.formula, self.root, self.result_prediction_label)
+        self.predictions.predictions()
 
 
     def load_model(self):
