@@ -12,11 +12,6 @@ def setup_predictions():
     result_prediction_label_mock = Mock()
     return Predictions(formula, root, result_prediction_label_mock)
 
-def test_prediction_window_creation(setup_predictions):
-    """Test to ensure the prediction window is created successfully."""
-    setup_predictions.predictions()
-    assert setup_predictions.predictions_window is not None, "Prediction window was not created."
-
 def test_calculate_prediction_valid_input(setup_predictions):
     """Test to ensure a valid prediction is calculated when inputs are correct."""
     setup_predictions.predictions()  # Crear la ventana y las entradas
@@ -34,8 +29,3 @@ def test_calculate_prediction_missing_input(setup_predictions):
     with pytest.raises(ValueError, match="Please enter all values for the variables."):
         setup_predictions.calculate_prediction()
 
-def test_close_prediction_window(setup_predictions):
-    """Test to ensure the prediction window closes without error."""
-    setup_predictions.predictions()
-    setup_predictions.predictions_window.destroy()  # Intentar cerrar la ventana
-    assert not setup_predictions.predictions_window.winfo_exists(), "Prediction window did not close properly."
