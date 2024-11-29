@@ -477,7 +477,7 @@ class GUI:
 
     def create_model(self):
         self.get_selected_columns()
-        self.model.create_model(self.columns_selected,self.output_column, self.data_table_df, self.formula_label, self.mse_label, self.r2_label)
+        self.model.create_model(self.columns_selected, self.output_column, self.data_table_df, self.formula_label, self.mse_label, self.r2_label)
         self.formula = self.model.model_formula
     
     def show_model(self):
@@ -492,9 +492,9 @@ class GUI:
 
 
     def load_model(self):
-        self.model.load_model(self.input_columns_label,self.output_column_label,self.formula_label,self.load_description_label,self.mse_label,self.r2_label)
+        self.model.load_model(self.input_columns_label, self.output_column_label, self.formula_label, self.load_description_label, self.mse_label, self.r2_label)
         self.formula = self.model.model_formula
 
     def save_description(self):
         description = self.description_entry.get()
-        self.model.save_description(description)
+        self.model.save_description(description, self.load_description_label)

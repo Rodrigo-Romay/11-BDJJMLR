@@ -208,9 +208,10 @@ class Model:
                 r2_label.configure(text=f"R2: {r2}")                
             messagebox.showinfo("Model Loaded", "Model loaded successfully.")
                 
-    def save_description(self, description_saved):
+    def save_description(self, description_saved, load_description_label):
         self.description_saved = description_saved
         if self.description_saved:
             messagebox.showinfo("Success", "Description saved successfully!")
+            load_description_label.configure(text=f"Description: {description_saved}")
         else:
             messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
