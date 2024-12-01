@@ -1,10 +1,10 @@
 import customtkinter as ctk
 from tkinter import filedialog, messagebox, ttk
-from read_file import DataImport
-from preprocess_updated_interface2 import Preprocess
-from model_updated_interface2 import Model
-from columns_updated_interface2 import Columns
-from predictions import Predictions
+from backend.read_file import DataImport
+from backend.preprocess import Preprocess
+from backend.model import Model
+from backend.columns import Columns
+from backend.predictions import Predictions
 
 class GUI:
     def __init__(self, root):
@@ -496,7 +496,6 @@ class GUI:
     def make_predictions(self):
         self.predictions = Predictions(self.formula, self.root, self.result_prediction_label)
         self.predictions.predictions()
-
 
     def load_model(self):
         self.model.load_model(self.input_columns_label, self.output_column_label, self.formula_label, self.load_description_label, self.mse_label, self.r2_label)

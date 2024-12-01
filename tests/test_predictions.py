@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock, patch
-from predictions import Predictions
+from backend.predictions import Predictions
 from tkinter import Tk
 import customtkinter as ctk
 
@@ -8,7 +8,7 @@ import customtkinter as ctk
 @pytest.fixture
 def setup_predictions():
     with patch("tkinter.Tk"):
-        root = Tk()  # Crear un root de tkinter para usar en la ventana de predicciones
+        root = Tk() # Crear un root de tkinter para usar en la ventana de predicciones
         ctk.set_appearance_mode("light")
         formula = {"formula": "y = [2.0] * ['x1'] + 5.0"}  # Ejemplo de fórmula simple
         result_prediction_label_mock = Mock()
