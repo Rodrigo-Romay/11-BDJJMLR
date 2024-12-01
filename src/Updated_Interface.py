@@ -227,6 +227,8 @@ class GUI:
             **button_style
         )
 
+        self.save_button.configure(fg_color="#21618c",
+            hover_color="#1b4f72")
         self.save_button.pack(pady=10, fill="x", padx=10)
         self.save_button.configure(state="disabled")
         self.model = Model(self.save_button, self.load_model_button, self.predict_button, self.show_model_button, self.preprocess_button, self.select_columns_button, self.select_output_button, self.null_option_menu, self.create_model_button)
@@ -296,11 +298,55 @@ class GUI:
         )
 
     def create_bottom_section(self):
-        """Bottom section with description, file info, and column selections."""
-        self.bottom_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
-        self.bottom_section.grid(row=2, column=1, sticky="nsew", padx=10, pady=10)
+        """Crea una única sección inferior con tres columnas: métricas, descripción, y detalles del archivo."""
 
-        # === Etiqueta para descripción del modelo ===
+        # Configuración del frame inferior
+        self.bottom_section = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
+        self.bottom_section.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+
+        # Configuración interna del frame
+        self.bottom_section.grid_columnconfigure(0, minsize=600)  
+        self.bottom_section.grid_columnconfigure(1, minsize=400)  
+        self.bottom_section.grid_columnconfigure(2, minsize=900)  
+        self.bottom_section.grid_columnconfigure(3, minsize=200)  
+        self.bottom_section.grid_rowconfigure(0, weight=0)
+        self.bottom_section.grid_rowconfigure(1, weight=1)
+        self.bottom_section.grid_rowconfigure(2,weight=0)
+
+
+        self.formula_label = self.create_label(
+            self.bottom_section,
+            "Formula: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.formula_label.grid(row=0, column=1,columnspan=2, sticky="w", padx=10, pady=(10, 5))
+
+        self.mse_label = self.create_label(
+            self.bottom_section,
+            "MSE: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.mse_label.grid(row=1, column=1, sticky="w", padx=10, pady=(5, 5))
+
+        self.r2_label = self.create_label(
+            self.bottom_section,
+            "R2: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.r2_label.grid(row=2, column=1, sticky="w", padx=10, pady=(5, 5))
+
+        self.result_prediction_label = self.create_label(
+            self.bottom_section,
+            "Result prediction: None",
+            ("Roboto", 14),
+            "#A0A0A0"
+        )
+        self.result_prediction_label.grid(row=2, column=3, sticky="w", padx=10, pady=(5, 10))
+
+        # === Descripción del modelo y configuración (Columna 1) ===
         self.description_label = self.create_label(
             self.bottom_section,
             text="Model Description:",
@@ -309,15 +355,13 @@ class GUI:
         )
         self.description_label.grid(row=0, column=0, sticky="w", padx=10, pady=(5, 2))
 
-        # === Entrada de descripción ===
         self.description_entry = ctk.CTkEntry(
             self.bottom_section,
             placeholder_text="Enter description here...",
-            width=600
+            width=300
         )
         self.description_entry.grid(row=1, column=0, sticky="w", padx=10, pady=(2, 5))
 
-        # === Botón para guardar descripción ===
         self.save_description_button = ctk.CTkButton(
             self.bottom_section,
             text="Save Description",
@@ -329,23 +373,30 @@ class GUI:
         )
         self.save_description_button.grid(row=2, column=0, sticky="w", padx=10, pady=(2, 5))
 
-        # === Etiqueta para mostrar la ruta del archivo ===
-        self.file_path_label = ctk.CTkLabel(
+        self.load_description_label = self.create_label(
             self.bottom_section,
-            text="No file loaded",
-            font=("Roboto", 12),
-            text_color="#7f8c8d"
-        )
-        self.file_path_label.grid(row=1, column=1, sticky="w", padx=10, pady=7)
-
-        # === Etiquetas para columnas de entrada y salida ===
-        self.input_columns_label = self.create_label(
-            self.bottom_section,
-            "Input Columns: None",
+            "Description: None",
             ("Roboto", 14),
-            "#A0A0A0"
+            "#A0A0A0",
         )
-        self.input_columns_label.grid(row=3, column=0, sticky="w", padx=10, pady=(5, 5))
+        self.load_description_label.grid(row=1, column=3, sticky="w", padx=10, pady=(5, 10))
+
+        # === Ruta del archivo, columna de salida y descripción cargada (Columna 2) ===
+        self.file_path_label = self.create_label(
+            self.bottom_section,
+            text="File Path: No file loaded",
+            font=("Roboto", 14),
+            text_color="#A0A0A0"
+        )
+        self.file_path_label.grid(row=0, column=3, sticky="w", padx=10, pady=(10, 5))
+
+        self.input_columns_label = self.create_label(
+        self.bottom_section,
+        "Input Columns: None",
+        ("Roboto", 14),
+        "#A0A0A0"
+        )
+        self.input_columns_label.grid(row=1, column=2, sticky="w", padx=10, pady=(5, 5))
 
         self.output_column_label = self.create_label(
             self.bottom_section,
@@ -353,51 +404,7 @@ class GUI:
             ("Roboto", 14),
             "#A0A0A0"
         )
-        self.output_column_label.grid(row=3, column=1, sticky="w", padx=10, pady=(5, 5))
-
-        self.formula_label = self.create_label(
-            self.bottom_section,
-            "Formula: None",
-            ("Roboto", 14),
-            "#A0A0A0"
-        )
-        self.formula_label.grid(row=4, column=0, sticky="w", padx=10, pady=(5, 5))
-
-        self.mse_label = self.create_label(
-            self.bottom_section,
-            "MSE: None",
-            ("Roboto", 14),
-            "#A0A0A0"
-        )
-        self.mse_label.grid(row=4, column=1, sticky="w", padx=10, pady=(5, 5))
-
-        self.r2_label = self.create_label(
-            self.bottom_section,
-            "R2: None",
-            ("Roboto", 14),
-            "#A0A0A0"
-        )
-        self.r2_label.grid(row=5, column=0, sticky="w", padx=10, pady=(5, 5))
-
-        self.load_description_label = self.create_label(
-            self.bottom_section,
-            "Description: None",
-            ("Roboto", 14),
-            "#A0A0A0"
-        )
-        self.load_description_label.grid(row=5, column=1, sticky="w", padx=10, pady=(5, 5))
-
-        self.result_prediction_label= self.create_label(
-            self.bottom_section,
-            "Result prediction: None",
-            ("Roboto", 14),
-            "#A0A0A0"
-        )
-        self.result_prediction_label.grid(row=2, column=1, sticky="w", padx=10, pady=(5,5))
-        
-        self.bottom_section.grid_columnconfigure(0, weight=1)
-        self.bottom_section.grid_columnconfigure(1, weight=1)
-        self.bottom_section.grid_rowconfigure(5, weight=0)
+        self.output_column_label.grid(row=2, column=2, sticky="w", padx=10, pady=(5, 5))
 
     def load_file(self):
         file_path = filedialog.askopenfilename(
