@@ -305,9 +305,9 @@ class GUI:
         self.bottom_section.grid(row=2, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
 
         # Configuración interna del frame
-        self.bottom_section.grid_columnconfigure(0, minsize=600)  
+        self.bottom_section.grid_columnconfigure(0, minsize=450)  
         self.bottom_section.grid_columnconfigure(1, minsize=400)  
-        self.bottom_section.grid_columnconfigure(2, minsize=900)  
+        self.bottom_section.grid_columnconfigure(2, minsize=650)  
         self.bottom_section.grid_columnconfigure(3, minsize=200)  
         self.bottom_section.grid_rowconfigure(0, weight=0)
         self.bottom_section.grid_rowconfigure(1, weight=1)
@@ -358,7 +358,7 @@ class GUI:
         self.description_entry = ctk.CTkEntry(
             self.bottom_section,
             placeholder_text="Enter description here...",
-            width=300
+            width=275
         )
         self.description_entry.grid(row=1, column=0, sticky="w", padx=10, pady=(2, 5))
 
