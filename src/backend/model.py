@@ -9,7 +9,7 @@ import os
 
 
 class Model:
-    def __init__(self, save_button, load_model_button, predict_button, show_model_button, preprocess_button, select_columns_button, select_output_button, null_option_menu, create_model_button):
+    def __init__(self, save_button, load_model_button, predict_button, show_model_button, preprocess_button, select_columns_button, select_output_button, null_option_menu, create_model_button, constant_entry, null_handling_label, null_handling_frame, load_button):
         self.model_formula = {}
         self.model_metrics = {}
         self.description_saved = {}
@@ -26,6 +26,10 @@ class Model:
         self.select_output_button=select_output_button
         self.null_option_menu=null_option_menu
         self.create_model_button=create_model_button
+        self.constant_entry=constant_entry
+        self.null_handling_label=null_handling_label
+        self.null_handling_frame=null_handling_frame
+        self.load_button=load_button
 
 
     def create_model(self, columns_selected, output_column, data_table_df, formula_label, mse_label, r2_label):
@@ -153,7 +157,7 @@ class Model:
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
-    def load_model(self, input_columns_label, output_column_label, formula_label, load_description_label, mse_label, r2_label):
+    def load_model(self, input_columns_label, output_column_label, formula_label, load_description_label, mse_label, r2_label, result_prediction_label, file_path_label, data_table):
         # Abrir el cuadro de diálogo para seleccionar el archivo
         file_path = filedialog.askopenfilename(
             title="Select Model File",
@@ -177,6 +181,10 @@ class Model:
                         raise Exception(f"JoblibError: Error al cargar el archivo joblib: {str(e)}")
             else:
                 raise ValueError("Unsupported file format.")
+            
+            data_table.delete(*data_table.get_children())
+            data_table["show"]="tree"
+
             # Asignar los valores desde el modelo cargado
             self.model = model_data.get("model")
             self.model_formula = model_data.get("formula", {})
@@ -186,13 +194,33 @@ class Model:
             self.description_saved = model_data.get("description", None)
 
             self.predict_button.configure(state="normal")
+            self.load_button.configure(state="disabled")
             self.preprocess_button.configure(state="disabled")
             self.select_columns_button.configure(state="disabled")
             self.select_output_button.configure(state="disabled")
             self.null_option_menu.configure(state="disabled")
+            self.constant_entry.configure(state="disabled")
+            self.constant_entry.pack_forget()
             self.create_model_button.configure(state="disabled")
             self.show_model_button.configure(state="disabled")
             self.save_button.configure(state="disabled")
+
+            self.predict_button.pack(pady=5, fill="x", padx=10)
+            self.load_button.pack_forget()
+            self.preprocess_button.pack_forget()
+            self.select_columns_button.pack_forget()
+            self.select_output_button.pack_forget()
+            self.null_handling_frame.pack_forget()
+            self.null_handling_label.pack_forget()
+            self.null_option_menu.pack_forget()
+            self.constant_entry.pack_forget()
+            self.create_model_button.pack_forget()
+            self.show_model_button.pack_forget()
+            self.save_button.pack_forget()
+
+            
+            file_path_label.configure(text="File Path: No file loaded")
+            result_prediction_label.configure(text="Result prediction: None")
                 
             # Definir los valores para fórmula, r2 y mse con valores predeterminados
             formula = self.model_formula if isinstance(self.model_formula, str) else self.model_formula.get("formula", "Formula not found")

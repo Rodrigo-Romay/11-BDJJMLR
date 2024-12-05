@@ -94,6 +94,7 @@ class GUI:
         self.sidebar = ctk.CTkFrame(self.root, fg_color="white", corner_radius=15)
         self.sidebar.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
 
+
         button_frame = ctk.CTkFrame(self.sidebar, fg_color="white", corner_radius=15)
         button_frame.pack(pady=10, fill="x", padx=10)
 
@@ -106,14 +107,14 @@ class GUI:
             "font": ("Roboto", 14, "bold")
         }
 
-        self.load_button = ctk.CTkButton(
+        self.make_new_model = ctk.CTkButton(
             button_frame,
-            text="OPEN FILE",
-            command=self.load_file,
+            text="Make new Model",
+            command=self.make_new_model_preset,
             **button_style
         )
-        self.load_button.configure(fg_color="#718093", hover_color="#b2bec3")
-        self.load_button.pack(side="left", expand=True, padx=5)
+        self.make_new_model.configure(fg_color="#718093", hover_color="#b2bec3")
+        self.make_new_model.pack(side="left", expand=True, padx=5)
         
         self.load_model_button = ctk.CTkButton(
             button_frame,
@@ -123,6 +124,17 @@ class GUI:
         )
         self.load_model_button.configure(fg_color="#718093", hover_color="#b2bec3")
         self.load_model_button.pack(side="left", expand=True, padx=5)
+
+        self.load_button = ctk.CTkButton(
+            self.sidebar,
+            text="Open File",
+            command=self.load_file,
+            **button_style
+        )
+        self.load_button.configure(fg_color="#A2B0C1", hover_color="#D4DDE1")
+        self.load_button.pack(pady=5,fill="x", padx=10)
+        self.load_button.configure(state="disabled")
+        self.load_button.pack_forget()
         
         self.preprocess_button = ctk.CTkButton(
             self.sidebar,
@@ -130,12 +142,14 @@ class GUI:
             command=self.preprocess_data,
             **button_style
         )
-        self.preprocess_button.pack(pady=10, fill="x", padx=10)
+        self.preprocess_button.pack(pady=5, fill="x", padx=10)
         self.preprocess_button.configure(state="disabled")
+        self.preprocess_button.pack_forget()
 
         # Null-handling section
         self.null_handling_frame = ctk.CTkFrame(self.sidebar, fg_color="#f5f5f5", corner_radius=10)
         self.null_handling_frame.pack(pady=20, fill="x", padx=10)
+        self.null_handling_frame.pack_forget()
 
         self.null_handling_label = self.create_label(
             self.null_handling_frame,
@@ -144,6 +158,7 @@ class GUI:
             text_color="#34495e"
         )
         self.null_handling_label.pack(pady=5)
+        self.null_handling_label.pack_forget()
 
         self.null_handling_option = ctk.StringVar(value="Select an option")
 
@@ -161,8 +176,9 @@ class GUI:
         dropdown_text_color="#2c3e50",  
         corner_radius=10  
         )
-        self.null_option_menu.pack(pady=10, fill="x")
+        self.null_option_menu.pack(pady=5, fill="x")
         self.null_option_menu.configure(state="disabled")
+        self.null_option_menu.pack_forget()
 
         self.constant_entry = ctk.CTkEntry(
             self.null_handling_frame,
@@ -170,7 +186,7 @@ class GUI:
             font=("Roboto", 12),
             corner_radius=8
         )
-        self.constant_entry.pack(pady=10, fill="x")
+        self.constant_entry.pack(pady=5, fill="x")
         self.constant_entry.configure(state="disabled")
         self.constant_entry.pack_forget()
 
@@ -180,8 +196,9 @@ class GUI:
             command=self.select_columns,
             **button_style
         )
-        self.select_columns_button.pack(pady=10, fill="x", padx=10)
+        self.select_columns_button.pack(pady=5, fill="x", padx=10)
         self.select_columns_button.configure(state="disabled")
+        self.select_columns_button.pack_forget()
 
         self.select_output_button = ctk.CTkButton(
             self.sidebar,
@@ -189,8 +206,9 @@ class GUI:
             command=self.select_output_column,
             **button_style
         )
-        self.select_output_button.pack(pady=10, fill="x", padx=10)
+        self.select_output_button.pack(pady=5, fill="x", padx=10)
         self.select_output_button.configure(state="disabled")
+        self.select_output_button.pack_forget()
 
         self.create_model_button = ctk.CTkButton(
             self.sidebar,
@@ -198,8 +216,9 @@ class GUI:
             command=self.create_model,
             **button_style
         )
-        self.create_model_button.pack(pady=10, fill="x", padx=10)
+        self.create_model_button.pack(pady=5, fill="x", padx=10)
         self.create_model_button.configure(state="disabled")
+        self.create_model_button.pack_forget()
 
         self.show_model_button = ctk.CTkButton(
             self.sidebar,
@@ -207,8 +226,9 @@ class GUI:
             command=self.show_model,
             **button_style
         )
-        self.show_model_button.pack(pady=10, fill="x", padx=10)
+        self.show_model_button.pack(pady=5, fill="x", padx=10)
         self.show_model_button.configure(state="disabled")
+        self.show_model_button.pack_forget()
 
         self.predict_button = ctk.CTkButton(
             self.sidebar,
@@ -217,8 +237,9 @@ class GUI:
             **button_style
         )
         
-        self.predict_button.pack(pady=10, fill="x", padx=10)
+        self.predict_button.pack(pady=5, fill="x", padx=10)
         self.predict_button.configure(state="disabled")
+        self.predict_button.pack_forget()
 
         self.save_button = ctk.CTkButton(
             self.sidebar,
@@ -227,11 +248,12 @@ class GUI:
             **button_style
         )
 
-        self.save_button.configure(fg_color="#21618c",
-            hover_color="#1b4f72")
-        self.save_button.pack(pady=10, fill="x", padx=10)
+        self.save_button.configure(fg_color="#4d6a86", hover_color="#3f556b")
+        self.save_button.pack(pady=5, fill="x", padx=10)
         self.save_button.configure(state="disabled")
-        self.model = Model(self.save_button, self.load_model_button, self.predict_button, self.show_model_button, self.preprocess_button, self.select_columns_button, self.select_output_button, self.null_option_menu, self.create_model_button)
+        self.save_button.pack_forget()
+
+        self.model = Model(self.save_button, self.load_model_button, self.predict_button, self.show_model_button, self.preprocess_button, self.select_columns_button, self.select_output_button, self.null_option_menu, self.create_model_button, self.constant_entry, self.null_handling_label, self.null_handling_frame, self.load_button)
 
     def create_main_section(self):
         """Main section with the data table and scrollbars."""
@@ -340,9 +362,9 @@ class GUI:
 
         self.result_prediction_label = self.create_label(
             self.bottom_section,
-            "Result prediction: None",
-            ("Roboto", 14),
-            "#A0A0A0"
+            text="Result prediction: None",
+            font=("Roboto", 14),
+            text_color="#A0A0A0"
         )
         self.result_prediction_label.grid(row=2, column=3, sticky="w", padx=10, pady=(5, 10))
 
@@ -420,17 +442,30 @@ class GUI:
                 data = data_importer._data
                 if not data.empty:
                     self.show_loading_screen()
+                    self.data_table["show"]="headings"
                     self.data_table_df = data
                     self.display_data(data)
                     
+                    # Actualiza todos los labels
+                    self.mse_label.configure(text="MSE: None")
+                    self.r2_label.configure(text="R2: None")
+                    self.formula_label.configure(text="Formula: None")
+                    self.input_columns_label.configure(text="Input Columns: None")
+                    self.output_column_label.configure(text="Output Column: None")
+                    self.result_prediction_label.configure(text="Result prediction: None")
+                    self.load_description_label.configure(text="Description: None")
+                    
+                    # Reinicia botones y estados
                     self.preprocess_button.configure(state="normal")
                     self.null_option_menu.configure(state="disabled")
+                    self.constant_entry.configure(state="disabled")
+                    self.constant_entry.pack_forget()
                     self.select_columns_button.configure(state="disabled")
                     self.select_output_button.configure(state="disabled")
                     self.create_model_button.configure(state="disabled")
-                    self.save_button.configure(state="disabled")
-                    self.predict_button.configure(state="disabled")
                     self.show_model_button.configure(state="disabled")
+                    self.predict_button.configure(state="disabled")
+                    self.save_button.configure(state="disabled")
 
                     self.columns_selected = []
                     self.output_column = None
@@ -438,6 +473,29 @@ class GUI:
                     self.file_path_label.configure(text=f"File loaded: {self._file}")
                 else:
                     self.data_table.delete(*self.data_table.get_children())
+                    self.data_table["show"]="tree"
+                    
+                    # Actualiza todos los labels
+                    self.mse_label.configure(text="MSE: None")
+                    self.r2_label.configure(text="R2: None")
+                    self.formula_label.configure(text="Formula: None")
+                    self.file_path_label.configure(text="File Path: No file loaded")
+                    self.input_columns_label.configure(text="Input Columns: None")
+                    self.output_column_label.configure(text="Output Column: None")
+                    self.result_prediction_label.configure(text="Result prediction: None")
+                    self.load_description_label.configure(text="Description: None")
+                    
+                    # Reinicia botones y estados
+                    self.preprocess_button.configure(state="disabled")
+                    self.null_option_menu.configure(state="disabled")
+                    self.constant_entry.configure(state="disabled")
+                    self.select_columns_button.configure(state="disabled")
+                    self.select_output_button.configure(state="disabled")
+                    self.create_model_button.configure(state="disabled")
+                    self.show_model_button.configure(state="disabled")
+                    self.predict_button.configure(state="disabled")
+                    self.save_button.configure(state="disabled")
+                    
                     messagebox.showerror("Error", "No data to display. Please check the file.")
             except Exception as e:
                 messagebox.showerror("Error", f"Error while loading file: {e}")
@@ -452,6 +510,46 @@ class GUI:
             self.data_table.column(col, anchor="center")
         for index, row in data.iterrows():
             self.data_table.insert("", "end", values=list(row))
+
+    def make_new_model_preset(self):
+
+        self.data_table.delete(*self.data_table.get_children())
+        self.data_table["show"]="tree"
+
+        self.mse_label.configure(text="MSE: None")
+        self.r2_label.configure(text="R2: None")
+        self.formula_label.configure(text="Formula: None")
+        self.file_path_label.configure(text="File Path: No file loaded")
+        self.input_columns_label.configure(text="Input Columns: None")
+        self.output_column_label.configure(text="Output Column: None")
+        self.result_prediction_label.configure(text="Result prediction: None")
+        self.load_description_label.configure(text="Description: None")
+
+        if self.predict_button.cget("state")=="normal":
+            self.predict_button.pack_forget()
+
+        self.load_button.pack(pady=5,fill="x", padx=10)
+        self.preprocess_button.pack(pady=5, fill="x", padx=10)
+        self.null_handling_frame.pack(pady=20, fill="x", padx=10)
+        self.null_handling_label.pack(pady=5)
+        self.null_option_menu.pack(pady=5, fill="x")
+        self.select_columns_button.pack(pady=5, fill="x", padx=10)
+        self.select_output_button.pack(pady=5, fill="x", padx=10)
+        self.create_model_button.pack(pady=5, fill="x", padx=10)
+        self.show_model_button.pack(pady=5, fill="x", padx=10)
+        self.predict_button.pack(pady=5, fill="x", padx=10)
+        self.save_button.pack(pady=5, fill="x", padx=10) 
+
+        self.load_button.configure(state="normal")
+        self.preprocess_button.configure(state="disabled")
+        self.null_option_menu.configure(state="disabled")
+        self.constant_entry.configure(state="disabled")
+        self.select_columns_button.configure(state="disabled")
+        self.select_output_button.configure(state="disabled")
+        self.create_model_button.configure(state="disabled")
+        self.show_model_button.configure(state="disabled")
+        self.predict_button.configure(state="disabled")
+        self.save_button.configure(state="disabled")
 
     def handle_null_option(self, option):
         self.show_loading_screen()
@@ -498,7 +596,7 @@ class GUI:
         self.predictions.predictions()
 
     def load_model(self):
-        self.model.load_model(self.input_columns_label, self.output_column_label, self.formula_label, self.load_description_label, self.mse_label, self.r2_label)
+        self.model.load_model(self.input_columns_label, self.output_column_label, self.formula_label, self.load_description_label, self.mse_label, self.r2_label, self.result_prediction_label, self.file_path_label, self.data_table)
         self.formula = self.model.model_formula
 
     def save_description(self):
