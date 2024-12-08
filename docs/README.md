@@ -1,6 +1,6 @@
 # Trendify README and User Guide
 
-**Table of Contents**
+**Table of contents**
 
 - [About this guide](#about-this-guide)
 	- [What is Trendify?](#what-is-trendify)
@@ -330,7 +330,7 @@ You can use Trendify to directly save an image or PDF of your model graph to you
 5. Choose the file type you want to save your image or PDF as.  
    Your model graph image or PDF is saved to your device.
 
-# **Saving Your Model** 
+# **Saving your model** 
 
 Saving your model in Trendify ensures you can reuse it later without needing to recreate it. These models can also be reloaded into Trendify for future analysis. 
 
