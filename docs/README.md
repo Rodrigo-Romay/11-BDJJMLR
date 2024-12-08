@@ -76,7 +76,7 @@ First you must upload your data or load an existing model. For detailed instruct
 For a visual representation of Trendify’s workflow, refer to the flowchart in [Figure 2](#figure2).
 
 ![Flowchart illustrating the sequence of functions in Trendify](https://i.imgur.com/l5nP8Rv.png)
-<p id="figure2">**Figure 2**: Flowchart illustrating the sequence of functions in Trendify<p>
+<p id="figure2"><strong>Figure 2</strong>: Flowchart illustrating the sequence of functions in Trendify<p>
 
 # **Opening your data on Trendify** 
 
@@ -122,7 +122,7 @@ Preprocessing data allows Trendify to prepare the data you uploaded to effective
   Select **OK**. 
   2. Choose a method to [handle the null values in your data](#handling-null-values-in-your-data).
 
-![ThebNull Values Detected dialog showing column name (total_bedrooms) of where null values are found and the amount of null values found (207)](https://imgur.com/zDKjUHi.png)
+![The Null Values Detected dialog showing column name (total_bedrooms) of where null values are found and the amount of null values found (207)](https://imgur.com/zDKjUHi.png)
 <p id="figure3"><strong>Figure 3</strong>: The <strong>Null Values Detected</strong> dialog showing column name (total_bedrooms) of where null values are found and the amount of null values found (207)<p>
 
 ## **Handling null values in your data** 
@@ -180,10 +180,10 @@ Trendify provides several methods to handle null values in your data, each with 
 
 <p id="table3"><strong>Table 3</strong>: The methods of handling null values, their function, and their most suitable use cases<p>
 
-![Raw data with a null value in total_bedrooms column][https://imgur.com/DbKnNO3.png]  
+![Raw data with a null value in total_bedrooms column](https://imgur.com/DbKnNO3.png)  
 <p id="figure4"><strong>Figure 4</strong>: Raw data with a null value in total_bedrooms column<p>
 
-![Preprocessed data where null value is filled with the mean of the total][https://imgur.com/GAtrvjN.png]  
+![Preprocessed data where null value is filled with the mean of the total](https://imgur.com/GAtrvjN.png)  
 <p id="figure5"><strong>Figure 5</strong>: Preprocessed data where null value is filled with the mean of the total_bedrooms column<p>
 
 # **Choosing your variables and creating a model** 
@@ -217,7 +217,7 @@ The output column is the dependent variable, which represents the outcome or res
    The selected output column appears in the Model Description panel (see Figure 6).  
    
 
-![The information about a model that is displayed in the Model Description panel][https://imgur.com/axzztuX.png]  
+![The information about a model that is displayed in the Model Description panel](https://imgur.com/axzztuX.png)  
 <p id="figure6"><strong>Figure 6</strong>: The information about a model that is displayed in the Model Description panel<p>
 
 # **Creating a description for your model** 
@@ -272,8 +272,8 @@ After selecting your input and output columns and creating a model, you can use 
 4. Select the **Close** after you finish reviewing your results.  
    The predicted value is shown in the Model Description panel.
 
-![The Prediction values dialog with population as the input column][https://imgur.com/9aFgWGA]
-<p id="table#"><strong>Figure 7</strong>: The <strong>Prediction values</strong> dialog with population as the input column.<p>
+![The Prediction values dialog with population as the input column](https://imgur.com/9aFgWGA.png)
+<p id="figure7"><strong>Figure 7</strong>: The <strong>Prediction values</strong> dialog with population as the input column.<p>
 
 # **Viewing and interacting with your model graph** 
 
@@ -285,7 +285,7 @@ Trendify allows you to visualize the relationship between your input and output 
    A window with the graph of your linear regression model opens.  
 2. Select any of the tool icons to interact with your model graph (see [Table 5](#table5) to learn the function of each icon).  
 
-![The interaction tools on the linear regression model graph window][https://imgur.com/7TbtLky.png]
+![The interaction tools on the linear regression model graph window](https://imgur.com/7TbtLky.png)
 <p id="figure8"><strong>Figure 8</strong>: The interaction tools on the linear regression model graph window<p>
 
 | Icon | Function |
@@ -303,7 +303,7 @@ Trendify allows you to visualize the relationship between your input and output 
 <p id="figure9"><strong>Figure 9</strong>: A 2D linear regression model graph, where households (output variable) is predicted based on population (input variable)</p>
 
 ![A 3D multiple linear regression model graph, where households (output variable) is predicted based on median housing age and population (input variables)](https://imgur.com/rjtljDJ.png)  
-<p id="table#"><strong>Figure 10</strong>: A 3D multiple linear regression model graph, where households (output variable) is predicted based on median housing age and population (input variables)</p>
+<p id="figure10"><strong>Figure 10</strong>: A 3D multiple linear regression model graph, where households (output variable) is predicted based on median housing age and population (input variables)</p>
 
 ## **Saving an image or PDF of your model graph**
 
