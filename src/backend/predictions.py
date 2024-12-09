@@ -1,12 +1,17 @@
 from tkinter import Toplevel, StringVar, messagebox
 import customtkinter as ctk
-
+from unittest.mock import Mock
 
 class Predictions:
     def __init__(self, formula, root, result_prediction_label):
         self.formula = formula
         self.root = root
         self.result_prediction_label = result_prediction_label
+
+        if isinstance(root, Mock):
+            self.result_var = Mock()  # Para pruebas
+        else:
+            self.result_var = StringVar()
 
     def predictions(self):
         # Separar la fórmula

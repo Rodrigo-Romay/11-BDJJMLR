@@ -1,6 +1,6 @@
 import pytest
 from unittest.mock import Mock
-from model_updated_interface2 import Model
+from backend.model import Model
 import pandas as pd
 
 @pytest.fixture
@@ -14,8 +14,25 @@ def setup_model():
     select_output_button_mock = Mock()
     null_option_menu_mock = Mock()
     create_model_button_mock = Mock()
-    return Model(save_button_mock, load_button_mock, predict_button_mock, show_model_button_mock, preprocess_button_mock, select_columns_button_mock, select_output_button_mock, null_option_menu_mock, create_model_button_mock)
+    constant_entry_mock = Mock()
+    null_handling_label_mock = Mock()
+    null_handling_frame_mock = Mock()
 
+    return Model(
+        save_button_mock, 
+        load_button_mock, 
+        predict_button_mock, 
+        show_model_button_mock, 
+        preprocess_button_mock, 
+        select_columns_button_mock, 
+        select_output_button_mock, 
+        null_option_menu_mock, 
+        create_model_button_mock,
+        constant_entry_mock,
+        null_handling_label_mock,
+        null_handling_frame_mock,
+        load_button_mock
+    )
 def test_create_model(setup_model):
     """Test that a model can be created successfully."""
     # Set up mock data for model creation
