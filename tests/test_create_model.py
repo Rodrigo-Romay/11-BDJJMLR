@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from backend.model import Model
 import pandas as pd
 
@@ -33,9 +33,12 @@ def setup_model():
         null_handling_frame_mock,
         load_button_mock
     )
+
+@patch("tkinter.Tk", Mock())  # Mock de la ventana principal
+@patch("tkinter.messagebox.showinfo", Mock())  # Mock del messagebox
 def test_create_model(setup_model):
     """Test that a model can be created successfully."""
-    # Set up mock data for model creation
+    # Tu prueba sin la interfaz gráfica real
     data_table = pd.DataFrame({
         "x1": [1, 2, 3],
         "x2": [4, 5, 6],
