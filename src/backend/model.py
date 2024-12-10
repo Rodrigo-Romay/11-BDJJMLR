@@ -8,8 +8,32 @@ from tkinter import messagebox, filedialog
 import os
 
 
+#========================================= MODEL ========================================
+
 class Model:
-    def __init__(self, save_button, load_model_button, predict_button, show_model_button, preprocess_button, select_columns_button, select_output_button, null_option_menu, create_model_button, constant_entry, null_handling_label, null_handling_frame, load_button):
+    """Class for creating and managing linear regression models."""
+
+    def __init__(self, save_button, load_model_button, predict_button, show_model_button, preprocess_button, select_columns_button,
+                 select_output_button, null_option_menu, create_model_button, constant_entry, null_handling_label, null_handling_frame, load_button):
+        """
+        Initialize the Model class with UI components.
+
+        Args:
+            save_button (Button): Button to save the model.
+            load_model_button (Button): Button to load an existing model.
+            predict_button (Button): Button to make predictions using the model.
+            show_model_button (Button): Button to display the model plot.
+            preprocess_button (Button): Button to preprocess data.
+            select_columns_button (Button): Button to select input columns.
+            select_output_button (Button): Button to select the output column.
+            null_option_menu (OptionMenu): Dropdown menu for handling null values.
+            create_model_button (Button): Button to create the model.
+            constant_entry (Entry): Entry widget for setting a constant value.
+            null_handling_label (Label): Label to describe null value handling.
+            null_handling_frame (Frame): Frame containing null value handling options.
+            load_button (Button): Button to load data.
+        """
+
         self.model_formula = {}
         self.model_metrics = {}
         self.description_saved = {}
@@ -31,8 +55,24 @@ class Model:
         self.null_handling_frame=null_handling_frame
         self.load_button=load_button
 
+    #------------------------------- CREATE MODEL -----------------------------------
 
     def create_model(self, columns_selected, output_column, data_table_df, formula_label, mse_label, r2_label):
+        """
+        Create a linear regression model using selected input and output columns.
+
+        Args:
+            columns_selected (list): List of selected input columns.
+            output_column (str): Name of the output column.
+            data_table_df (DataFrame): DataFrame containing the data.
+            formula_label (Label): Label to display the model formula.
+            mse_label (Label): Label to display the mean squared error.
+            r2_label (Label): Label to display the R-squared value.
+
+        Raises:
+            ValueError: If input/output columns contain non-numeric values.
+        """
+        
         self.columns_selected = columns_selected
         self.output_column = output_column
         self.data_table_df = data_table_df
@@ -77,7 +117,16 @@ class Model:
         except Exception as e:
             messagebox.showerror("Model Error", f"An error occurred: {e}")
 
+    #------------------------------- SHOW MODEL ----------------------------
+
     def show_model(self):
+        """
+        Display a plot of the linear regression model.
+
+        Raises:
+            ValueError: If no model is available to plot.
+        """
+
         if not self.model:
             messagebox.showerror("Error", "No model available to plot. Create a model first.")
             return
@@ -101,6 +150,17 @@ class Model:
 
 
     def plot_model_2d(self, X, y, y_pred, r2, mse):
+        """
+        Plot the linear regression model in 2D.
+
+        Args:
+            X (ndarray): Input feature values.
+            y (ndarray): Actual target values.
+            y_pred (ndarray): Predicted target values.
+            r2 (float): R-squared value of the model.
+            mse (float): Mean squared error of the model.
+        """
+
         plt.figure(figsize=(10, 6))
         plt.scatter(X, y, color="blue", label="Actual Data")
         plt.plot(X, y_pred, color="red", label="Predicted Line")
@@ -112,6 +172,17 @@ class Model:
         plt.show()
 
     def plot_model_3d(self, X, y, y_pred, r2, mse):
+        """
+        Plot the linear regression model in 3D.
+
+        Args:
+            X (ndarray): Input feature values with 2 dimensions.
+            y (ndarray): Actual target values.
+            y_pred (ndarray): Predicted target values.
+            r2 (float): R-squared value of the model.
+            mse (float): Mean squared error of the model.
+        """
+
         fig = plt.figure(figsize=(10, 6))
         ax = fig.add_subplot(111, projection="3d")
         ax.scatter(X[:, 0], X[:, 1], y, color="blue", label="Actual Data")
@@ -124,7 +195,16 @@ class Model:
         plt.legend(loc='upper right')
         plt.show()
 
+    #------------------------------------- SAVE MODEL / DESCRIPTION ----------------------------------
+
     def save_model(self):
+        """
+        Save the current model to a file.
+
+        Raises:
+            ValueError: If the file extension is not .pkl or .joblib.
+        """
+
         file_path = filedialog.asksaveasfilename(
             filetypes=[("Pickle files", "*.pkl"), ("Joblib files", "*.joblib")],
             defaultextension=".pkl"
@@ -135,7 +215,7 @@ class Model:
                     raise ValueError("Invalid file extension. Please use .pkl or .joblib.")
 
                 model_data = {
-                    "model": self.model,  # Guardar el modelo
+                    "model": self.model, 
                     "formula": self.model_formula,
                     "input_columns": self.columns_selected,
                     "output_column": self.output_column,
@@ -149,7 +229,6 @@ class Model:
                 elif file_path.endswith(".joblib"):
                     joblib.dump(model_data, file_path)
 
-                # Mostrar mensaje de éxito solo si no hubo errores
                 messagebox.showinfo("Model Saved", f"Model saved at {file_path}")
 
             except ValueError as ve:
@@ -157,8 +236,48 @@ class Model:
             except Exception as e:
                 messagebox.showerror("Save Error", f"Error saving model: {e}")
 
-    def load_model(self, input_columns_label, output_column_label, formula_label, load_description_label, mse_label, r2_label, result_prediction_label, file_path_label, data_table):
-        # Abrir el cuadro de diálogo para seleccionar el archivo
+    def save_description(self, description_saved, load_description_label):
+        """
+        Save a description for the current model.
+
+        Args:
+            description_saved (str): Description text for the model.
+            load_description_label (Label): Label to display the saved description.
+        """
+
+        self.description_saved = description_saved
+        if self.description_saved:
+            messagebox.showinfo("Success", "Description saved successfully!")
+            load_description_label.configure(text=f"Description: {description_saved}")
+        else:
+            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
+            
+    #------------------------------------ LOAD MODEL -------------------------------------
+
+    def load_model(self, input_columns_label, output_column_label, formula_label, load_description_label,
+                   mse_label,r2_label, result_prediction_label, file_path_label, data_table):
+        """
+        Load a model from a file.
+
+        Args:
+            input_columns_label (Label): Label to display input columns.
+            output_column_label (Label): Label to display the output column.
+            formula_label (Label): Label to display the model formula.
+            load_description_label (Label): Label to display the model description.
+            mse_label (Label): Label to display the mean squared error.
+            r2_label (Label): Label to display the R-squared value.
+            result_prediction_label (Label): Label to display prediction results.
+            file_path_label (Label): Label to display the file path.
+            data_table (Treeview): Data table to display model information.
+
+        Raises:
+            FileNotFoundError: If the selected file does not exist.
+            ValueError: If the file format is unsupported.
+            Exception: If an error occurs while loading the model.
+        """
+
+        #--------------------- Open file -------------------------
+
         file_path = filedialog.askopenfilename(
             title="Select Model File",
             filetypes=[("PFL files", "*.pkl"), ("Joblib files", "*.joblib")]
@@ -167,14 +286,14 @@ class Model:
             if not os.path.exists(file_path):
                 raise FileNotFoundError(f"File {file_path} not found.")    
             elif file_path.endswith(".pkl"):
-                    # Intentar cargar un archivo .pkl
+                    #Try to load .pkl files
                     with open(file_path, 'rb') as file:
                         try:
                             model_data = pickle.load(file)
                         except Exception as e:
                             raise Exception(f"PickleError: Error al cargar el archivo pickle: {str(e)}")  
             elif file_path.endswith(".joblib"):
-                    # Intentar cargar un archivo .joblib
+                    #Try to load .joblib files
                     try:
                         model_data = joblib.load(file_path)
                     except Exception as e:
@@ -182,10 +301,11 @@ class Model:
             else:
                 raise ValueError("Unsupported file format.")
             
+            #----------------------- Update GUI ----------------------
+
             data_table.delete(*data_table.get_children())
             data_table["show"]="tree"
 
-            # Asignar los valores desde el modelo cargado
             self.model = model_data.get("model")
             self.model_formula = model_data.get("formula", {})
             self.columns_selected = model_data.get("input_columns", [])
@@ -222,7 +342,6 @@ class Model:
             file_path_label.configure(text="File Path: No file loaded")
             result_prediction_label.configure(text="Result prediction: None")
                 
-            # Definir los valores para fórmula, r2 y mse con valores predeterminados
             formula = self.model_formula if isinstance(self.model_formula, str) else self.model_formula.get("formula", "Formula not found")
             r2 = self.model_metrics.get("r2", "N/A")
             mse = self.model_metrics.get("mse", "N/A")
@@ -246,11 +365,4 @@ class Model:
             else:
                 r2_label.configure(text=f"R2: {r2}")                
             messagebox.showinfo("Model Loaded", "Model loaded successfully.")
-                
-    def save_description(self, description_saved, load_description_label):
-        self.description_saved = description_saved
-        if self.description_saved:
-            messagebox.showinfo("Success", "Description saved successfully!")
-            load_description_label.configure(text=f"Description: {description_saved}")
-        else:
-            messagebox.showwarning("Warning", "Description is empty. Please enter a description.")
+

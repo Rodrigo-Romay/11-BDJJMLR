@@ -2,43 +2,59 @@ from tkinter import Toplevel, StringVar, messagebox
 import customtkinter as ctk
 from unittest.mock import Mock
 
+
+#======================================= PREDICTIONS ==================================
+
 class Predictions:
+    """Generates predictions based on a formula and user input."""
+
     def __init__(self, formula, root, result_prediction_label):
+        """Initializes the Predictions class with a formula, root window, and result display.
+
+        Args:
+            formula (dict): Contains the formula used for prediction.
+            root (Tk): Root Tkinter window.
+            result_prediction_label (Widget): Label to display prediction results.
+        """
+
         self.formula = formula
         self.root = root
         self.result_prediction_label = result_prediction_label
 
         if isinstance(root, Mock):
-            self.result_var = Mock()  # Para pruebas
+            self.result_var = Mock()  
         else:
             self.result_var = StringVar()
 
+    #------------------------------ PREDCTIONS WINDOW ------------------------------
+
     def predictions(self):
-        # Separar la fórmula
+        """Parses the formula and sets up a GUI for user input and predictions."""
+
+        #------------------------ Get data ------------------------
+
         formula_sep = self.formula["formula"]
         
-        # Extraer los coeficientes
         coef_part = formula_sep.split('=')[1].split('*')[0].strip()  # Toma la parte entre "=" y "*"
         coef_str = coef_part.strip('[]')  # Elimina los corchetes
         self.coefficients = [float(x) for x in coef_str.split()]
-        # Extraer las columnas
+
         columns_part = formula_sep.split('*')[1].split('+')[0].strip()  # Toma la parte entre "*" y "+"
         columns_str = columns_part.strip("[]")  # Elimina los corchetes
         self.columns = [col.strip(" '") for col in columns_str.split(',')]  # Limpia y separa las columnas
 
-        # Extraer el intercepto
         self.formula_intercept = float(formula_sep.split('+')[-1].strip())  # Intercepto final
 
-        # Crear ventana de predicciones
+        #--------------- Create predictions window ----------------
+        
         self.predictions_window = Toplevel(self.root)
         self.predictions_window.title("Predictions")
         self.predictions_window.resizable(False, False)
         self.predictions_window.configure(bg="#dfe6e9")
 
-        # Título
         title_frame = ctk.CTkFrame(
             self.predictions_window,
-            fg_color="#2c3e50",  # Azul oscuro
+            fg_color="#2c3e50",  
             corner_radius=0
         )
         title_frame.pack(fill="x", pady=(10, 5), padx=0)
@@ -46,7 +62,7 @@ class Predictions:
         title_label = ctk.CTkLabel(
             title_frame,
             text="Prediction Values",
-            text_color="#ecf0f1",  # Texto claro
+            text_color="#ecf0f1",  
             font=("Helvetica", 16, "bold")
         )
         title_label.pack(pady=5)
@@ -54,20 +70,17 @@ class Predictions:
         # Frame de opciones
         options_frame = ctk.CTkFrame(
             self.predictions_window,
-            fg_color="#f1f2f6",  # Azul claro pálido
+            fg_color="#f1f2f6",  
             corner_radius=10
         )
         options_frame.pack(pady=(5, 5), padx=10, fill="both", expand=True)
 
-        # Variables para almacenar valores de entrada
         self.column_vars = {}
 
-        # Crear entradas dinámicamente para cada columna
         for col in self.columns:
-            var = StringVar()  # Cambiar a DoubleVar() si necesitas decimales
+            var = StringVar()  
             self.column_vars[col] = var
 
-            # Etiqueta para el nombre de la columna
             col_label = ctk.CTkLabel(
                 options_frame,
                 text=col,
@@ -76,7 +89,6 @@ class Predictions:
             )
             col_label.pack(anchor="w", padx=10, pady=2)
 
-            # Campo de entrada para la columna
             col_entry = ctk.CTkEntry(
                 options_frame,
                 textvariable=var,
@@ -84,7 +96,6 @@ class Predictions:
             )
             col_entry.pack(fill="x", padx=10, pady=2)
 
-        # Etiqueta para el título "Predicted Value"
         predicted_label = ctk.CTkLabel(
             options_frame,
             text="Predicted Value",
@@ -93,24 +104,22 @@ class Predictions:
         )
         predicted_label.pack(anchor="w", padx=10, pady=2)
 
-        # Frame para resaltar la casilla del resultado
         result_frame = ctk.CTkFrame(
             options_frame,
-            fg_color="#bdc3c7",  # Color gris oscuro para el marco
+            fg_color="#bdc3c7",  
             corner_radius=10
         )
         result_frame.pack(fill="x", padx=10, pady=10)
 
-        # Campo de entrada para mostrar el resultado
-        self.result_var = StringVar(value="")  # Texto inicial es "None"
+        self.result_var = StringVar(value="")  
         self.result_entry = ctk.CTkEntry(
             result_frame,
             textvariable=self.result_var,
             font=("Helvetica", 14, "bold"),
-            fg_color="#ecf0f1",  # Fondo claro para el campo de entrada
-            state="readonly",  # Modo de solo lectura
-            text_color="#27ae60",  # Texto en verde
-            justify="center"  # Centrar el texto dentro del campo
+            fg_color="#ecf0f1",  
+            state="readonly",  
+            text_color="#27ae60", 
+            justify="center"  
         )
         self.result_entry.pack(fill="x", padx=5, pady=5)
         
@@ -123,7 +132,6 @@ class Predictions:
         )
         calculate_button.pack(pady=10)
 
-        # Botón para cerrar la ventana de predicciones
         close_button = ctk.CTkButton(
             options_frame,
             text="Close",
@@ -133,29 +141,34 @@ class Predictions:
         )
         close_button.pack(pady=(5, 10))
 
+    #------------------------------ CALCULATE PREDICTION ------------------------------
 
-        # Botón para calcular predicción
     def calculate_prediction(self):
-        # Recoger los valores introducidos
+        """Calculates the prediction based on user inputs and the provided formula."""
+
         values = [self.column_vars[col].get() for col in self.columns]
         
-        # Validar los valores ingresados
         self.validate_inputs(values)
 
         try:
-            # Convertir a float los valores válidos
             float_values = [float(v) for v in values]
             
-            # Calcular la predicción: sum(coef * valor) + intercepto
             prediction = sum(coef * valor for coef, valor in zip(self.coefficients, float_values)) + self.formula_intercept                
             self.result_prediction_label.configure(text=f"Result: {prediction}")
             
-            # Mostrar predicción en el campo de entrada
             self.result_var.set(f"{prediction:.4f}")
         except Exception as e:
             messagebox.showerror("Error", f"An error occurred: {e}")
 
     def validate_inputs(self, values):
-        # Comprobar si falta algún valor de entrada
+        """Validates user inputs before performing predictions.
+
+        Args:
+            values (list): List of user-provided input values.
+
+        Raises:
+            ValueError: If any input value is missing or invalid.
+        """
+
         if any(v.strip() == "" for v in values):  # Verificar si algún valor está vacío
             raise ValueError("Please enter all values for the variables.")

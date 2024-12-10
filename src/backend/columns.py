@@ -2,9 +2,23 @@ import customtkinter as ctk
 from tkinter import messagebox, Toplevel, IntVar
 
 
+#===================================== COLUMNS =====================================
+
 class Columns():
+    """Class for managing column selection for input and output in a GUI."""
 
     def __init__(self, root, data_table, input_columns_label, output_column_label, create_model_button):
+        """
+        Initialize the Columns class.
+
+        Args:
+            root (Tk): The root window of the application.
+            data_table (dict): Dictionary containing data table information, including column names.
+            input_columns_label (CTkLabel): Label to display selected input columns.
+            output_column_label (CTkLabel): Label to display the selected output column.
+            create_model_button (CTkButton): Button to trigger model creation, enabled after selection.
+        """
+
         self.root = root
         self.data_table = data_table
         self.input_columns_label = input_columns_label
@@ -14,80 +28,84 @@ class Columns():
         self.output_column = None
         self.create_model_button = create_model_button
 
+    #-------------------------------------- INPUT COLUMNS ---------------------------------
+
     def select_columns(self):
-        # Crear una nueva ventana para seleccionar las columnas
+        """
+        Open a window to allow the user to select input columns from the data table.
+
+        The selected columns are displayed on the main interface.
+        """
+
+        #----------------------- Create input columns window -------------------
+
         self.column_window = Toplevel(self.root)
         self.column_window.title("Select Columns")
         self.column_window.resizable(False, False)
-        self.column_window.configure(bg="#dfe6e9")  # Fondo azul claro suave
+        self.column_window.configure(bg="#dfe6e9")  
 
-        # Frame para el título con fondo azul oscuro
         title_frame = ctk.CTkFrame(
             self.column_window,
-            fg_color="#2c3e50",  # Azul oscuro
+            fg_color="#2c3e50", 
             corner_radius=0
         )
-        title_frame.pack(fill="x", pady=(10, 5), padx=0)  # Espaciado ajustado
+        title_frame.pack(fill="x", pady=(10, 5), padx=0)  
 
         title_label = ctk.CTkLabel(
             title_frame,
             text="Select Input Columns",
-            text_color="#ecf0f1",  # Texto claro
+            text_color="#ecf0f1",  
             font=("Helvetica", 16, "bold")
         )
         title_label.pack(pady=5)
 
-        # Frame para las opciones con fondo aún más claro
         options_frame = ctk.CTkFrame(
             self.column_window,
-            fg_color="#f1f2f6",  # Azul claro pálido
+            fg_color="#f1f2f6",  
             corner_radius=10
         )
         options_frame.pack(pady=(5, 5), padx=10, fill="both", expand=True)
 
-        # Crear checkboxes dentro del frame de opciones
         self.column_vars = {}
         for col in self.data_table["columns"]:
             var = IntVar()
             if col in self.columns_selected:
-                var.set(1)  # Marcar como seleccionada
+                var.set(1) 
             self.column_vars[col] = var
 
             checkbox = ctk.CTkCheckBox(
                 options_frame,
                 text=col,
                 variable=var,
-                text_color="#2c3e50",  # Texto azul oscuro
-                fg_color="#3498db",  # Azul vibrante para las casillas seleccionadas
-                border_color="#7f8c8d",  # Gris oscuro
-                hover_color="#2980b9"  # Azul más intenso al pasar el cursor
+                text_color="#2c3e50", 
+                fg_color="#3498db",  
+                border_color="#7f8c8d",  
+                hover_color="#2980b9"  
             )
-            checkbox.pack(anchor="w", padx=15, pady=2)  # Espaciado ajustado
-
-        # Frame para los botones con fondo igual al fondo general
+            checkbox.pack(anchor="w", padx=15, pady=2) 
         button_frame = ctk.CTkFrame(
             self.column_window,
-            fg_color="#dfe6e9"  # Fondo azul claro suave
+            fg_color="#dfe6e9"  
         )
-        button_frame.pack(pady=(5, 10))  # Espaciado compacto con el frame superior
+        button_frame.pack(pady=(5, 10))  
 
         confirm_button = ctk.CTkButton(
             button_frame,
             text="Confirm Selection",
             command=self.confirm_selection,
-            fg_color="#2ecc71",  # Verde suave para confirmar
+            fg_color="#2ecc71",  
             hover_color="#27ae60",
             text_color="white",
             font=("Helvetica", 13),
-            width=160  # Botón más estrecho
+            width=160  
         )
-        confirm_button.pack(pady=3)  # Espaciado compacto entre botones
+        confirm_button.pack(pady=3)  
 
         cancel_button = ctk.CTkButton(
             button_frame,
             text="Cancel",
             command=self.column_window.destroy,
-            fg_color="#e74c3c",  # Rojo suave para cancelar
+            fg_color="#e74c3c",  
             hover_color="#c0392b",
             text_color="white",
             font=("Helvetica", 13),
@@ -95,48 +113,57 @@ class Columns():
         )
         cancel_button.pack(pady=3)
 
-        # Ajustar tamaño automáticamente según contenido
         self.column_window.update_idletasks()
         width = self.column_window.winfo_reqwidth() + 20
         height = self.column_window.winfo_reqheight() + 20
         self.column_window.geometry(f"{width}x{height}")
 
     def confirm_selection(self):
-        # Obtener las columnas seleccionadas
+        """
+        Confirm the selected input columns and update the label on the main interface.
+
+        Displays a success message if columns are selected, or a warning if none are chosen.
+        """
+
         self.columns_selected = [
             col for col, var in self.column_vars.items() if var.get() == 1
         ]
 
         if self.columns_selected:
-            # Actualizar la etiqueta con las columnas seleccionadas
             self.input_columns_label.configure(
                 text=f"Input Columns: {', '.join(self.columns_selected)}"
             )
             self.column_window.destroy()
 
-            # Mostrar mensaje de éxito
             messagebox.showinfo(
                 "Columns Selected",
                 f"Selected columns: {', '.join(self.columns_selected)}"
             )
         else:
-            # Mostrar advertencia si no se seleccionó ninguna columna
             messagebox.showwarning(
                 "No Selection",
                 "No columns selected."
             )
 
+    #-------------------------------------- OUTPUT COLUMN ---------------------------------
+
     def select_output_column(self):
-        # Crear una nueva ventana para seleccionar la columna de salida
+        """
+        Open a window to allow the user to select an output column from the data table.
+
+        The selected column is displayed on the main interface.
+        """
+
+        #--------------------- Create output column window ---------------------
+
         self.output_column_window = Toplevel(self.root)
         self.output_column_window.title("Select Output Column")
         self.output_column_window.resizable(False, False)
-        self.output_column_window.configure(bg="#dfe6e9")  # Fondo azul claro suave
+        self.output_column_window.configure(bg="#dfe6e9")  
 
-        # Frame para el título con fondo azul oscuro
         title_frame = ctk.CTkFrame(
             self.output_column_window,
-            fg_color="#2c3e50",  # Azul oscuro
+            fg_color="#2c3e50",  
             corner_radius=0
         )
         title_frame.pack(fill="x", pady=(10, 5), padx=0)
@@ -144,67 +171,60 @@ class Columns():
         title_label = ctk.CTkLabel(
             title_frame,
             text="Select Output Column",
-            text_color="#ecf0f1",  # Texto claro
+            text_color="#ecf0f1",  
             font=("Helvetica", 16, "bold")
         )
         title_label.pack(pady=5)
 
-        # Frame para las opciones con fondo más claro
         options_frame = ctk.CTkFrame(
             self.output_column_window,
-            fg_color="#f1f2f6",  # Azul claro pálido
+            fg_color="#f1f2f6",  
             corner_radius=10
         )
         options_frame.pack(pady=(5, 5), padx=10, fill="both", expand=True)
 
-        # Variable para almacenar la selección de columna de salida
-        self.output_column_var = ctk.StringVar(value="")  # Almacena la columna seleccionada
+        self.output_column_var = ctk.StringVar(value="")  
 
-        # Crear radiobuttons dentro del frame de opciones
         for col in self.data_table["columns"]:
             radiobutton = ctk.CTkRadioButton(
                     options_frame,
                     text=col,
                     variable=self.output_column_var,
-                    value=col,  # Cada radiobutton tiene un valor único (la columna)
-                    text_color="#2c3e50",  # Texto azul oscuro
-                    fg_color="#3498db",  # Gris claro por defecto
+                    value=col, 
+                    text_color="#2c3e50",  
+                    fg_color="#3498db",  
                     hover_color="#2980b9", 
-                    border_color="#bdc3c7",  # Azul claro para el borde seleccionado
-                    border_width_checked=4  # Borde más grueso cuando está seleccionado
+                    border_color="#bdc3c7", 
+                    border_width_checked=4  
                 )
             radiobutton.pack(anchor="w", padx=15, pady=3)
 
-            # Si ya hay una columna de salida seleccionada, marcarla
             if col == self.output_column:
                 self.output_column_var.set(col)
 
-        # Frame para los botones con fondo igual al fondo general
         button_frame = ctk.CTkFrame(
             self.output_column_window,
-            fg_color="#dfe6e9"  # Fondo azul claro suave
+            fg_color="#dfe6e9"  
         )
         button_frame.pack(pady=(5, 10))
 
-        # Botón para confirmar selección
         confirm_button = ctk.CTkButton(
             button_frame,
             text="Confirm Selection",
             command=self.confirm_output_column,
-            fg_color="#2ecc71",  # Verde suave para confirmar
+            fg_color="#2ecc71",  
             hover_color="#27ae60",
             text_color="white",
             font=("Helvetica", 13),
-            width=160  # Botón más estrecho
+            width=160 
         )
         confirm_button.pack(pady=3)
 
-        # Botón para cancelar selección
         cancel_button = ctk.CTkButton(
             button_frame,
             text="Cancel",
             command=self.output_column_window.destroy,
-            fg_color="#e74c3c",  # Rojo suave para cancelar
+            fg_color="#e74c3c",  
             hover_color="#c0392b",
             text_color="white",
             font=("Helvetica", 13),
@@ -212,7 +232,6 @@ class Columns():
         )
         cancel_button.pack(pady=3)
 
-        # Ajustar tamaño automáticamente según contenido
         self.output_column_window.update_idletasks()
         width = self.output_column_window.winfo_reqwidth() + 20
         height = self.output_column_window.winfo_reqheight() + 20
@@ -220,14 +239,18 @@ class Columns():
 
 
     def confirm_output_column(self):
-        # Obtener la columna seleccionada
+        """
+        Confirm the selected output column and update the label on the main interface.
+
+        Displays a success message if a column is selected, or a warning if none are chosen.
+        """
+
         selected_output_column = self.output_column_var.get()
         if selected_output_column:
             messagebox.showinfo(
                 "Output Column Selected",
                 f"Selected Output Column: {selected_output_column}"
             )
-            # Almacenar la columna seleccionada como atributo de clase
             self.output_column = selected_output_column
             self.output_column_window.destroy()
             self.output_column_label.configure(
