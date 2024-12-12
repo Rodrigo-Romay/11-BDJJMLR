@@ -1,5 +1,6 @@
 import pandas as pd
 import sqlite3
+from tkinter import messagebox
 
 
 #=================================== DATAIMPORT ==================================
@@ -29,14 +30,12 @@ class DataImport():
 
         try:
             self._data = pd.read_csv(self._file)
-            if self._data.empty:
-                print("\nCSV file is empty\n")
         except pd.errors.ParserError:
-            print("\nCorrupt file\n")
+            messagebox.showerror("Error", "The CSV file is corrupt.")
         except FileNotFoundError:
-            print("\nFile not found")
-        except:
-            print("\nNot valid route")
+            messagebox.showerror("Error", "The file was not found.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
     def read_excel(self):
         """Reads an Excel file and loads its content into a pandas DataFrame.
@@ -48,14 +47,12 @@ class DataImport():
 
         try:
             self._data = pd.read_excel(self._file)
-            if self._data.empty:
-                print("\nExcel file is empty\n")
         except ValueError:
-            print("\nData error\n")
+            messagebox.showerror("Error", "The Excel file is corrupt.")
         except FileNotFoundError:
-            print("\nFile not found")
-        except:
-            print("\nNot valid route")
+            messagebox.showerror("Error", "The file was not found.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
 
     def read_sql(self):
         """Reads data from an SQLite database and loads its first table into a pandas DataFrame.
@@ -77,15 +74,15 @@ class DataImport():
                 raise Exception("\nNo tables found in the database\n")
 
             table_name = tables[0][0]
-            print(f"\nTable '{table_name}' found.\n")
+            messagebox.showinfo("Info", f"Table '{table_name}' found in the database.")
 
             self._data = pd.read_sql(f"SELECT * FROM {table_name}", db_connection)
         except sqlite3.DatabaseError:
-            print("\nCorrupt file\n")
+            messagebox.showerror("Error", "The database file is corrupt.")
         except FileNotFoundError:
-            print("\nFile not found")
-        except:
-            print("\nNot valid route")
+            messagebox.showerror("Error", "The file was not found.")
+        except Exception as e:
+            messagebox.showerror("Error", f"An unexpected error occurred: {str(e)}")
         finally:
             if db_connection:
                 db_connection.close()
@@ -103,7 +100,7 @@ class DataImport():
 
         partes = self._file.split('.')
         if len(partes) < 2:
-            print("\nFile format not found\n")
+            messagebox.showwarning("Warning", "The file format could not be determined.")
         else:
             extension = partes[1].lower()
             if extension == "csv":
@@ -113,7 +110,7 @@ class DataImport():
             elif extension == "db" or extension == "sqlite":
                 self.read_sql()
             else:
-                print("\nFormat not valid\n")
+                messagebox.showwarning("Warning", "Unsupported file format.")
 
     #--------------------------------- READ FILE -------------------------------
 
