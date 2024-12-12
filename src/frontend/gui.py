@@ -711,7 +711,7 @@ class GUI:
 
         if not self.columns_select:
             self.columns_select = Columns(
-                self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button)
+                self.root, self.data_table, self.input_columns_label, self.output_column_label, self.create_model_button,self.predict_button)
         self.columns_select.select_columns()
 
     def select_output_column(self):

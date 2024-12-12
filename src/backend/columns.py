@@ -7,7 +7,7 @@ from tkinter import messagebox, Toplevel, IntVar
 class Columns():
     """Class for managing column selection for input and output in a GUI."""
 
-    def __init__(self, root, data_table, input_columns_label, output_column_label, create_model_button):
+    def __init__(self, root, data_table, input_columns_label, output_column_label, create_model_button,make_prediction_button):
         """
         Initialize the Columns class.
 
@@ -27,6 +27,7 @@ class Columns():
         self.columns_selected = []
         self.output_column = None
         self.create_model_button = create_model_button
+        self.make_prediction_button = make_prediction_button
 
     #-------------------------------------- INPUT COLUMNS ---------------------------------
 
@@ -67,6 +68,8 @@ class Columns():
         options_frame.pack(pady=(5, 5), padx=10, fill="both", expand=True)
 
         self.column_vars = {}
+        if self.columns_selected != []:
+            self.columns_selected = []
         for col in self.data_table["columns"]:
             var = IntVar()
             if col in self.columns_selected:
@@ -134,11 +137,12 @@ class Columns():
                 text=f"Input Columns: {', '.join(self.columns_selected)}"
             )
             self.column_window.destroy()
-
+            
             messagebox.showinfo(
                 "Columns Selected",
                 f"Selected columns: {', '.join(self.columns_selected)}"
             )
+            self.make_prediction_button.configure(state = "disabled")
         else:
             messagebox.showwarning(
                 "No Selection",
@@ -184,7 +188,8 @@ class Columns():
         options_frame.pack(pady=(5, 5), padx=10, fill="both", expand=True)
 
         self.output_column_var = ctk.StringVar(value="")  
-
+        if self.output_column != None:
+            self.output_column != None
         for col in self.data_table["columns"]:
             radiobutton = ctk.CTkRadioButton(
                     options_frame,
@@ -256,6 +261,7 @@ class Columns():
             self.output_column_label.configure(
                 text=f"Output Column: {self.output_column}"
             )
+            self.make_prediction_button.configure(state = "disabled")
             self.create_model_button.configure(state="normal")
         else:
             messagebox.showwarning(
