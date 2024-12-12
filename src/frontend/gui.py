@@ -1,4 +1,5 @@
 import customtkinter as ctk
+import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from backend.read_file import DataImport
 from backend.preprocess import Preprocess
@@ -401,28 +402,50 @@ class GUI:
         )
 
     def create_bottom_section(self):
-        """Creates the bottom section for displaying summaries and statistics."""
+        """Creates the bottom section for displaying summaries and statistics with scrollbars."""
 
         #------------------------- Frames ----------------------
 
+        # Main frame for the bottom section
         self.bottom_section = ctk.CTkFrame(
             self.root, fg_color="white", corner_radius=15)
         self.bottom_section.grid(
             row=2, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
 
-        self.bottom_section.grid_columnconfigure(0, minsize=450)
-        self.bottom_section.grid_columnconfigure(1, minsize=400)
-        self.bottom_section.grid_columnconfigure(2, minsize=650)
-        self.bottom_section.grid_columnconfigure(3, minsize=200)
-        self.bottom_section.grid_rowconfigure(0, weight=0)
-        self.bottom_section.grid_rowconfigure(1, weight=1)
-        self.bottom_section.grid_rowconfigure(2, weight=0)
+        self.bottom_section.grid_columnconfigure(0, weight=1)
+        self.bottom_section.grid_rowconfigure(0, weight=1)
 
-        #------------------------- Labels ----------------------
+        # Create a Canvas for scrolling
+        self.canvas = tk.Canvas(self.bottom_section, bg="white", highlightthickness=0)
+        self.canvas.grid(row=0, column=0, sticky="nsew")
 
-        #Formula
+        # Add vertical and horizontal scrollbars
+        self.v_scrollbar = ttk.Scrollbar(self.bottom_section, orient="vertical", command=self.canvas.yview)
+        self.h_scrollbar = ttk.Scrollbar(self.bottom_section, orient="horizontal", command=self.canvas.xview)
+
+        self.v_scrollbar.grid(row=0, column=1, sticky="ns")
+        self.h_scrollbar.grid(row=1, column=0, sticky="ew")
+
+        # Configure canvas to use scrollbars
+        self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set)
+
+        # Create a frame inside the canvas to hold the content
+        self.scrollable_frame = ctk.CTkFrame(self.canvas, fg_color="white")
+
+        # Add the frame to the canvas window
+        self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
+
+        # Bind the frame size to adjust scroll region
+        def update_scroll_region(event):
+            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
+
+        self.scrollable_frame.bind("<Configure>", update_scroll_region)
+
+        #------------------------- Content ----------------------
+
+        # Formula
         self.formula_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "Formula: None",
             ("Roboto", 14),
             "#A0A0A0"
@@ -430,27 +453,27 @@ class GUI:
         self.formula_label.grid(
             row=0, column=1, columnspan=2, sticky="w", padx=10, pady=(10, 5))
 
-        #MSE
+        # MSE
         self.mse_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "MSE: None",
             ("Roboto", 14),
             "#A0A0A0"
         )
         self.mse_label.grid(row=1, column=1, sticky="w", padx=10, pady=(5, 5))
 
-        #R2
+        # R2
         self.r2_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "R2: None",
             ("Roboto", 14),
             "#A0A0A0"
         )
         self.r2_label.grid(row=2, column=1, sticky="w", padx=10, pady=(5, 5))
 
-        #Result prediction
+        # Result prediction
         self.result_prediction_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             text="Result prediction: None",
             font=("Roboto", 14),
             text_color="#A0A0A0"
@@ -458,9 +481,9 @@ class GUI:
         self.result_prediction_label.grid(
             row=2, column=3, sticky="w", padx=10, pady=(5, 10))
 
-        #Description entry
+        # Description entry
         self.description_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             text="Model Description:",
             font=("Roboto", 14),
             text_color="black"
@@ -469,7 +492,7 @@ class GUI:
             row=0, column=0, sticky="w", padx=10, pady=(5, 2))
 
         self.description_entry = ctk.CTkEntry(
-            self.bottom_section,
+            self.scrollable_frame,
             placeholder_text="Enter description here...",
             width=275
         )
@@ -477,7 +500,7 @@ class GUI:
             row=1, column=0, sticky="w", padx=10, pady=(2, 5))
 
         self.save_description_button = ctk.CTkButton(
-            self.bottom_section,
+            self.scrollable_frame,
             text="Save Description",
             command=self.save_description,
             corner_radius=8,
@@ -488,9 +511,9 @@ class GUI:
         self.save_description_button.grid(
             row=2, column=0, sticky="w", padx=10, pady=(2, 5))
 
-        #Description loaded
+        # Description loaded
         self.load_description_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "Description: None",
             ("Roboto", 14),
             "#A0A0A0",
@@ -498,9 +521,9 @@ class GUI:
         self.load_description_label.grid(
             row=1, column=3, sticky="w", padx=10, pady=(5, 10))
 
-        #File path
+        # File path
         self.file_path_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             text="File Path: No file loaded",
             font=("Roboto", 14),
             text_color="#A0A0A0"
@@ -508,9 +531,9 @@ class GUI:
         self.file_path_label.grid(
             row=0, column=3, sticky="w", padx=10, pady=(10, 5))
 
-        #Input columns
+        # Input columns
         self.input_columns_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "Input Columns: None",
             ("Roboto", 14),
             "#A0A0A0"
@@ -518,9 +541,9 @@ class GUI:
         self.input_columns_label.grid(
             row=1, column=2, sticky="w", padx=10, pady=(5, 5))
 
-        #Output column
+        # Output column
         self.output_column_label = self.create_label(
-            self.bottom_section,
+            self.scrollable_frame,
             "Output Column: None",
             ("Roboto", 14),
             "#A0A0A0"
