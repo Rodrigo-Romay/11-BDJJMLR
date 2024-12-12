@@ -45,6 +45,12 @@ class Preprocess():
                 self.null_option_menu.configure(state="normal")
             else:
                 messagebox.showinfo("No Null Values", "No null values detected in the dataset.")
+                self.null_option_menu.configure(state="disabled")
+                self.constant_entry.configure(state="disabled")
+                self.constant_entry.delete(0, 'end')
+                self.constant_entry.pack_forget()
+                self.select_columns_button.configure(state="normal")
+                self.select_output_button.configure(state="normal")
             self.preprocess_button.configure(state="disabled")
         else:
             messagebox.showwarning("No Data Loaded", "Please load data first.")
