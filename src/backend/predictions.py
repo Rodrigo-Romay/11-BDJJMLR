@@ -148,9 +148,10 @@ class Predictions:
 
         values = [self.column_vars[col].get() for col in self.columns]
         
-        self.validate_inputs(values)
+        
 
         try:
+            self.validate_inputs(values)
             float_values = [float(v) for v in values]
             
             prediction = sum(coef * valor for coef, valor in zip(self.coefficients, float_values)) + self.formula_intercept                
