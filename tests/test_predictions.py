@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock,patch
 from backend.predictions import Predictions
 
 @pytest.fixture
@@ -21,7 +21,9 @@ def test_calculate_prediction_missing_input_logic(setup_predictions_logic):
     predictions.column_vars = {'x1': Mock(get=lambda: "")}  # Simula un valor vacío
     
     with pytest.raises(ValueError, match="Please enter all values for the variables."):
-        predictions.calculate_prediction()
+        with patch("backend.predictions.messagebox.showerror") as mock_showerror:
+            predictions.calculate_prediction()
+            mock_showerror.assert_called_once_with("Error", "Enter all values for the variables.")
 
 def test_calculate_prediction_valid_input_logic(setup_predictions_logic):
     """Prueba para asegurarse de que se realice el cálculo de la predicción con entradas válidas."""

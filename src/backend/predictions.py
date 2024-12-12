@@ -148,9 +148,9 @@ class Predictions:
 
         values = [self.column_vars[col].get() for col in self.columns]
         
-        
-        self.validate_inputs(values)
 
+        self.validate_inputs(values)
+        
         try:
             float_values = [float(v) for v in values]
             
