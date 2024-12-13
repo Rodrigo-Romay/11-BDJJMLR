@@ -405,8 +405,7 @@ class GUI:
         """Creates the bottom section for displaying summaries and statistics with scrollbars."""
 
         #------------------------- Frames ----------------------
-
-        # Main frame for the bottom section
+        
         self.bottom_section = ctk.CTkFrame(
             self.root, fg_color="white", corner_radius=15)
         self.bottom_section.grid(
@@ -415,31 +414,21 @@ class GUI:
         self.bottom_section.grid_columnconfigure(0, weight=1)
         self.bottom_section.grid_rowconfigure(0, weight=1)
 
-        # Create a Canvas for scrolling
         self.canvas = tk.Canvas(self.bottom_section, bg="white", highlightthickness=0)
         self.canvas.grid(row=0, column=0, sticky="nsew")
 
-        # Add vertical and horizontal scrollbars
         self.v_scrollbar = ttk.Scrollbar(self.bottom_section, orient="vertical", command=self.canvas.yview)
         self.h_scrollbar = ttk.Scrollbar(self.bottom_section, orient="horizontal", command=self.canvas.xview)
 
         self.v_scrollbar.grid(row=0, column=1, sticky="ns")
         self.h_scrollbar.grid(row=1, column=0, sticky="ew")
-
-        # Configure canvas to use scrollbars
         self.canvas.configure(yscrollcommand=self.v_scrollbar.set, xscrollcommand=self.h_scrollbar.set)
 
-        # Create a frame inside the canvas to hold the content
         self.scrollable_frame = ctk.CTkFrame(self.canvas, fg_color="white")
 
-        # Add the frame to the canvas window
         self.canvas.create_window((0, 0), window=self.scrollable_frame, anchor="nw")
 
-        # Bind the frame size to adjust scroll region
-        def update_scroll_region(event):
-            self.canvas.configure(scrollregion=self.canvas.bbox("all"))
-
-        self.scrollable_frame.bind("<Configure>", update_scroll_region)
+        self.scrollable_frame.bind("<Configure>", self.update_scroll_region)
 
         #------------------------- Content ----------------------
 
@@ -675,7 +664,7 @@ class GUI:
         self.result_prediction_label.configure(text="Result prediction: None")
         self.load_description_label.configure(text="Description: None")
 
-        if self.predict_button.cget("state") == "normal":
+        if self.load_button.cget("state") == "disabled":
             self.predict_button.pack_forget()
 
         self.load_button.pack(pady=5, fill="x", padx=10)
@@ -786,3 +775,13 @@ class GUI:
 
         description = self.description_entry.get()
         self.model.save_description(description, self.load_description_label)
+    
+    def update_scroll_region(self, event):
+        """
+        Adjusts the canvas scroll region to fit its current content.
+
+        Args:
+            event (Event): The event triggering the adjustment.
+        """
+        
+        self.canvas.configure(scrollregion=self.canvas.bbox("all"))
