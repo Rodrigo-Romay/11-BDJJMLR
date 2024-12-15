@@ -35,15 +35,15 @@ class Predictions:
 
         formula_sep = self.formula["formula"]
         
-        coef_part = formula_sep.split('=')[1].split('*')[0].strip()  # Toma la parte entre "=" y "*"
+        coef_part = formula_sep.split('=')[1].split('*')[0].strip() 
         coef_str = coef_part.strip('[]')  # Elimina los corchetes
         self.coefficients = [float(x) for x in coef_str.split()]
 
-        columns_part = formula_sep.split('*')[1].split('+')[0].strip()  # Toma la parte entre "*" y "+"
+        columns_part = formula_sep.split('*')[1].split('+')[0].strip()  
         columns_str = columns_part.strip("[]")  # Elimina los corchetes
-        self.columns = [col.strip(" '") for col in columns_str.split(',')]  # Limpia y separa las columnas
+        self.columns = [col.strip(" '") for col in columns_str.split(',')] 
 
-        self.formula_intercept = float(formula_sep.split('+')[-1].strip())  # Intercepto final
+        self.formula_intercept = float(formula_sep.split('+')[-1].strip())  
 
         #--------------- Create predictions window ----------------
         
@@ -67,7 +67,6 @@ class Predictions:
         )
         title_label.pack(pady=5)
 
-        # Frame de opciones
         options_frame = ctk.CTkFrame(
             self.predictions_window,
             fg_color="#f1f2f6",  
@@ -127,7 +126,7 @@ class Predictions:
             options_frame,
             text="Calculate Prediction",
             command=self.calculate_prediction,
-            fg_color="#27ae60",  # Verde
+            fg_color="#27ae60",  
             hover_color="#2ecc71"
         )
         calculate_button.pack(pady=10)
@@ -136,7 +135,7 @@ class Predictions:
             options_frame,
             text="Close",
             command=self.predictions_window.destroy,
-            fg_color="#e74c3c",  # Rojo
+            fg_color="#e74c3c",  
             hover_color="#c0392b"
         )
         close_button.pack(pady=(5, 10))
@@ -171,6 +170,6 @@ class Predictions:
             ValueError: If any input value is missing or invalid.
         """
 
-        if any(v.strip() == "" for v in values):  # Verificar si algún valor está vacío
+        if any(v.strip() == "" for v in values): 
             messagebox.showerror("Error", "Enter all values for the variables.")
             raise ValueError("Please enter all values for the variables.")
