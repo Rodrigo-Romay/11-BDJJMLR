@@ -85,7 +85,7 @@ class Preprocess():
                 for col in self.null_counts_dict.keys():
                     if self.data_table_df[col].dtype in ['float64', 'int64']:
                         mean_value = round(self.data_table_df[col].mean(), 4)
-                        if type(mean_value) not in ['float64', 'int64']:
+                        if str(mean_value) == "nan":
                             mean_value = 0
                         self.data_table_df[col] = self.data_table_df[col].fillna(mean_value)
                 messagebox.showinfo("Filled with Mean", "Null values have been filled with the mean of their respective columns.")
@@ -104,8 +104,8 @@ class Preprocess():
                 for col in self.null_counts_dict.keys():
                     if self.data_table_df[col].dtype in ['float64', 'int64']:
                         median_value = round(self.data_table_df[col].median(), 4)
-                        if type(median_value) not in ['float64', 'int64']:
-                            median_value = 0
+                        if str(median_value) == "nan":
+                            mean_value = 0
                         self.data_table_df[col] = self.data_table_df[col].fillna(median_value)
                 messagebox.showinfo("Filled with Median", "Null values have been filled with the median of their respective columns.")
                 self.display_data(self.data_table_df)
