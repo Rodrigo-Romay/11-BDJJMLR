@@ -106,20 +106,26 @@ class GUI:
         self.loading_frame.grid_forget()
         self.progress_bar.stop()
 
+    def show_welcome_message(self):
+        """Displays a welcome message in a dialog box."""
+        messagebox.showinfo("Welcome", "Welcome to the Linear Regression Models application.\n\n"
+                                   "This tool allows you to load data, train a linear regression model, "
+                                   "make predictions and visualize results.\n\n"
+                                   "Let's get started!")
+
     # ------------------------------- FRAMES ----------------------------
 
     def create_widgets(self):
         """Creates and initializes all widgets in the application."""
-
         self.create_title_bar()
         self.create_sidebar()
         self.create_main_section()
         self.create_bottom_section()
         self.create_loading_screen()
 
+
     def create_title_bar(self):
         """Creates the top title bar with the application name and subtitle."""
-
         self.title_bar = ctk.CTkFrame(
             self.root, fg_color="#2c3e50", height=50, corner_radius=0)
         self.title_bar.grid(row=0, column=0, columnspan=2, sticky="nsew")
@@ -651,7 +657,6 @@ class GUI:
 
     def make_new_model_preset(self):
         """Resets the application to the initial state, preparing it for creating a new model."""
-
         self.data_table.delete(*self.data_table.get_children())
         self.data_table["show"] = "tree"
 
