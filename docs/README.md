@@ -5,6 +5,7 @@
 - [About this guide](#about-this-guide)
 	- [What is Trendify?](#what-is-trendify)
 	- [Who is this guide for?](#who-is-this-guide-for)
+- [Installing Trendify](#installing-trendify)
 - [Navigating Trendify](#navigating-trendify)
 - [Understanding Trendify’s workflow](#understanding-trendifys-workflow)
 - [Opening your data on Trendify](#opening-your-data-on-trendify)
@@ -49,6 +50,43 @@ Refer to [Table 1](#table1) for an overview of who this guide is intended for an
 | Professionals | Suitable for performing simple data analysis and making predictions based on datasets. |
 
 <p id="table1"><strong>Table 1</strong>: User types and how this guide applies to them</p>
+
+# **Installing Trendify**
+
+Follow these steps to set up Trendify on your system:  
+
+1. **Download Trendify**  
+   - Obtain the `.zip` file from the official source or repository.  
+
+2. **Extract the Files**  
+   - Unzip the downloaded file to a folder of your choice.  
+
+3. **System Requirements**  
+   Ensure you have the following installed on your computer:  
+   - **Python 3.10 or later**  
+   - A code/text editor such as **Visual Studio Code**.  
+
+4. **Install Dependencies**  
+   - Open a terminal in the extracted folder and run this command for an automatic installation:  
+     ```bash
+     pip install -r requirements.txt
+     ```
+   - This may take some time.
+   - **Optional**:
+	   - To enhance the appearance of the interface, you can install the [Pacifico font](https://fonts.google.com/specimen/Pacifico).  
+	   - To install it:  
+	     1. Go to the [Google Fonts Pacifico page](https://fonts.google.com/specimen/Pacifico).  
+	     2. Download the font by clicking on the **Get Font** button.  
+	     3. Double-click the downloaded `.ttf` file and click "Install"
+5. **Run the Application**  
+   - Start the application by executing the following command in the terminal:  
+     ```bash
+     python src/main.py
+     ```
+
+Once completed, Trendify will open, ready for you to upload your datasets and start analyzing data.  
+
+---
 
 # **Navigating Trendify**
 
